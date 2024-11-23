@@ -112,6 +112,9 @@ class Crawler:
         return self.products
 
 
+from email.mime.text import MIMEText
+
+
 class NotificationManager:
     def __init__(self, smtp_settings):
         self.smtp_settings = smtp_settings
@@ -119,25 +122,28 @@ class NotificationManager:
     def notify(self, updates, mode="initial"):
         if mode == "initial":
             print("최초 실행 - 데이터 저장 완료:")
-            print(
-                f"ID: {updates['id']}, Title: {updates['title']}, Price: {updates['price']}, Meta Data: {updates['meta_data']}"
-            )
+            text = f"<a href='{updates['link']}'>{updates['title']} ({updates['price']})</a>"
+            keyword = data_manager.data["keyword"]
+            subject = f"[{keyword}] 핫딜 알림 등록 완료"
+            self.send_email(subject=subject, body=text, is_html=True)
         elif mode == "updates":
-            print("갱신된 내용 발견:")
-            for product in updates:
-                print(
-                    f"ID: {product['id']}, Title: {product['title']}, Price: {product['price']}, Meta Data: {product['meta_data']}"
-                )
-            self.send_email(updates)
-
-    def send_email(self, updates):
-        try:
-            subject = "갱신된 상품 알림"
-            body = "\n".join(
-                [f"{product['title']} - {product['price']}" for product in updates]
+            subject = f"[{data_manager.data['keyword']}] 새로운 핫딜 등장!"
+            text = "".join(
+                [
+                    f"<p><a href='{product['link']}'>{product['title']}</a> - {product['price']}</p>"
+                    for product in updates
+                ]
             )
+            self.send_email(subject, text, is_html=True)
 
-            msg = MIMEText(body, "plain")
+    def send_email(
+        self,
+        subject="메일 제목",
+        body=None,
+        is_html=False,
+    ):
+        try:
+            msg = MIMEText(body, "html" if is_html else "plain")  # HTML 형식 지원
             msg["Subject"] = subject
             msg["From"] = self.smtp_settings["email"]
             msg["To"] = self.smtp_settings["email"]
@@ -154,9 +160,9 @@ class NotificationManager:
                     msg.as_string(),
                 )
 
-            print("갱신된 내용을 이메일로 전송했습니다.")
+            print("메일 전송 완료!")
         except Exception as e:
-            print(f"이메일 전송 실패: {e}")
+            print(f"메일 전송 실패: {e}")
 
 
 class App:
