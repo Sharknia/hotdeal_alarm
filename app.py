@@ -13,7 +13,15 @@ class DataManager:
 
     def load_data(self):
         if not os.path.exists(self.file_path):
-            return {"keyword": "", "current_title": "", "current_id": "", "wdate": ""}
+            return {
+                "keyword": "",
+                "current_title": "",
+                "current_id": "",
+                "current_link": "",
+                "current_price": "",
+                "current_meta_data": "",
+                "wdate": "",
+            }
         with open(self.file_path, "r") as f:
             return json.load(f)
 
@@ -21,9 +29,14 @@ class DataManager:
         with open(self.file_path, "w") as f:
             json.dump(self.data, f, indent=4)
 
-    def update_data(self, current_id, current_title):
+    def update_data(
+        self, current_id, current_title, current_link, current_price, current_meta_data
+    ):
         self.data["current_id"] = current_id
         self.data["current_title"] = current_title
+        self.data["current_link"] = current_link
+        self.data["current_price"] = current_price
+        self.data["current_meta_data"] = current_meta_data
         self.data["wdate"] = datetime.now().isoformat()
         self.save_data()
 
@@ -58,10 +71,26 @@ class Crawler:
 
         for li in product_list.find_all("li"):
             post_id = li.get("data-post-id")
+            action_uri = li.get("data-action-uri")
             product_link = li.find("a", class_="product-link")
-            if post_id and product_link:
+            product_price = li.find("small", class_="product-price")
+            meta_info = li.find("small", class_="deal-price-meta-info")
+
+            if post_id and action_uri and product_link:
                 title = product_link.text.strip()
-                self.products.append({"id": post_id, "title": title})
+                full_link = f"https://www.algumon.com{action_uri.strip()}"
+                price = product_price.text.strip() if product_price else ""
+                meta_data = meta_info.text.strip() if meta_info else ""
+
+                self.products.append(
+                    {
+                        "id": post_id,
+                        "title": title,
+                        "link": full_link,
+                        "price": price,
+                        "meta_data": meta_data,
+                    }
+                )
         return self.products
 
 
@@ -89,7 +118,14 @@ class App:
         current_id = self.data_manager.data["current_id"]
         if not current_id:
             # 최초 실행: 첫 번째 상품 저장
-            self.data_manager.update_data(products[0]["id"], products[0]["title"])
+            first_product = products[0]
+            self.data_manager.update_data(
+                first_product["id"],
+                first_product["title"],
+                first_product["link"],
+                first_product["price"],
+                first_product["meta_data"],
+            )
             print("최초 실행 - 데이터 저장 완료.")
         elif current_id == products[0]["id"]:
             # 갱신된 내용 없음
@@ -100,10 +136,19 @@ class App:
             for product in products:
                 if product["id"] == current_id:
                     break
-                print(f"ID: {product['id']}, Title: {product['title']}")
+                print(
+                    f"ID: {product['id']}, Title: {product['title']}, Price: {product['price']}, Meta Data: {product['meta_data']}"
+                )
 
             # 첫 번째 데이터로 JSON 갱신
-            self.data_manager.update_data(products[0]["id"], products[0]["title"])
+            first_product = products[0]
+            self.data_manager.update_data(
+                first_product["id"],
+                first_product["title"],
+                first_product["link"],
+                first_product["price"],
+                first_product["meta_data"],
+            )
 
 
 if __name__ == "__main__":
