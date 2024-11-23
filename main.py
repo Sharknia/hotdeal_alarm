@@ -1,11 +1,21 @@
 import json
 import os
 import smtplib
+import time
 from datetime import datetime
 from email.mime.text import MIMEText
 
 import requests
+import schedule
 from bs4 import BeautifulSoup
+
+
+def job():
+    try:
+        app = App()
+        app.run()
+    except ValueError as e:
+        print(f"에러: {e}")
 
 
 class DataManager:
@@ -249,8 +259,10 @@ if __name__ == "__main__":
         }
         data_manager.save_data()
 
-    try:
-        app = App()
-        app.run()
-    except ValueError as e:
-        print(f"에러: {e}")
+    # 30분마다 실행 설정
+    schedule.every(30).minutes.do(job)
+
+    # 스케줄 실행
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
