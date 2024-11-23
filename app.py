@@ -80,7 +80,14 @@ class Crawler:
                 title = product_link.text.strip()
                 full_link = f"https://www.algumon.com{action_uri.strip()}"
                 price = product_price.text.strip() if product_price else ""
-                meta_data = meta_info.text.strip() if meta_info else ""
+                meta_data = (
+                    meta_info.text.replace("\n", "")
+                    .replace("\r", "")
+                    .replace(" ", "")
+                    .strip()
+                    if meta_info
+                    else ""
+                )
 
                 self.products.append(
                     {
