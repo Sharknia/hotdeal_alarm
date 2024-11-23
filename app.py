@@ -94,10 +94,30 @@ class Crawler:
         return self.products
 
 
+class NotificationManager:
+    def __init__(self):
+        pass
+
+    def notify(self, updates, mode="initial"):
+        if mode == "initial":
+            print("최초 실행 - 데이터 저장 완료:")
+            print(
+                f"ID: {updates['id']}, Title: {updates['title']}, Price: {updates['price']}, Meta Data: {updates['meta_data']}"
+            )
+
+        elif mode == "updates":
+            print("갱신된 내용 발견:")
+            for product in updates:
+                print(
+                    f"ID: {product['id']}, Title: {product['title']}, Price: {product['price']}, Meta Data: {product['meta_data']}"
+                )
+
+
 class App:
-    def __init__(self, keyword):
+    def __init__(self, keyword, notification_manager=None):
         self.data_manager = DataManager()
         self.crawler = Crawler(keyword)
+        self.notification_manager = notification_manager or NotificationManager()
 
     def run(self):
         # 데이터 파일에 keyword 저장
@@ -126,19 +146,17 @@ class App:
                 first_product["price"],
                 first_product["meta_data"],
             )
-            print("최초 실행 - 데이터 저장 완료.")
+            self.notification_manager.notify(first_product, mode="initial")
         elif current_id == products[0]["id"]:
             # 갱신된 내용 없음
             print("갱신된 내용이 없습니다.")
         else:
             # 갱신된 내용 처리
-            print("갱신된 내용 발견:")
+            updates = []
             for product in products:
                 if product["id"] == current_id:
                     break
-                print(
-                    f"ID: {product['id']}, Title: {product['title']}, Price: {product['price']}, Meta Data: {product['meta_data']}"
-                )
+                updates.append(product)
 
             # 첫 번째 데이터로 JSON 갱신
             first_product = products[0]
@@ -149,6 +167,9 @@ class App:
                 first_product["price"],
                 first_product["meta_data"],
             )
+
+            # 알림 출력
+            self.notification_manager.notify(updates, mode="updates")
 
 
 if __name__ == "__main__":
