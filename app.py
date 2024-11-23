@@ -133,18 +133,7 @@ class App:
     def __init__(self, keyword=None, notification_manager=None):
         self.data_manager = DataManager()
         self.notification_manager = notification_manager or NotificationManager()
-
-        # 키워드를 우선순위에 따라 결정
-        if self.data_manager.data["keyword"]:
-            self.crawler = Crawler(self.data_manager.data["keyword"])
-        elif keyword:
-            self.crawler = Crawler(keyword)
-            self.data_manager.data["keyword"] = keyword
-            self.data_manager.save_data()
-        else:
-            raise ValueError(
-                "키워드가 없습니다. data.json에 키워드가 없거나 제공되지 않았습니다."
-            )
+        self.crawler = Crawler(self.data_manager.data["keyword"])
 
     def run(self):
         # 크롤링 수행
@@ -197,9 +186,12 @@ class App:
 if __name__ == "__main__":
     # DataManager 싱글톤 초기화
     data_manager = DataManager()
-
-    # 키워드 결정
-    keyword = data_manager.data.get("keyword") or input("검색어를 입력하세요: ").strip()
+    keyword = data_manager.data.get("keyword")
+    # 초기화 안되어있는 경우
+    if not keyword:
+        keyword = input("검색어를 입력하세요: ").strip()
+        data_manager.data["keyword"] = keyword
+        data_manager.save_data()
 
     try:
         app = App(keyword)
