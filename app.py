@@ -120,14 +120,15 @@ class NotificationManager:
         self.smtp_settings = smtp_settings
 
     def notify(self, updates, mode="initial"):
+        keyword = data_manager.data["keyword"]
+        subject = None
+        text = f"<h2><a href='https://www.algumon.com/search/{keyword}'>전체 검색 결과</a></h2>"
         if mode == "initial":
-            print("최초 실행 - 데이터 저장 완료:")
-            text = f"<a href='{updates['link']}'>{updates['title']} ({updates['price']})</a>"
-            keyword = data_manager.data["keyword"]
+            text += f"<p><a href='{updates['link']}'>{updates['title']} ({updates['price']})</a></p>"
             subject = f"[{keyword}] 핫딜 알림 등록 완료"
             self.send_email(subject=subject, body=text, is_html=True)
         elif mode == "updates":
-            subject = f"[{data_manager.data['keyword']}] 새로운 핫딜 등장!"
+            subject = f"[{keyword}] 새로운 핫딜 등장!"
             text = "".join(
                 [
                     f"<p><a href='{product['link']}'>{product['title']}</a> - {product['price']}</p>"
@@ -135,6 +136,7 @@ class NotificationManager:
                 ]
             )
             self.send_email(subject, text, is_html=True)
+        print("알림 완료!")
 
     def send_email(
         self,
