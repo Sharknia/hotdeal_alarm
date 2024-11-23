@@ -51,7 +51,12 @@ class DataManager:
             json.dump(self.data, f, indent=4)
 
     def update_data(
-        self, current_id, current_title, current_link, current_price, current_meta_data
+        self,
+        current_id=None,
+        current_title=None,
+        current_link=None,
+        current_price=None,
+        current_meta_data=None,
     ):
         self.data["current_id"] = current_id
         self.data["current_title"] = current_title
@@ -134,7 +139,8 @@ class NotificationManager:
         subject = None
         text = f"<h2><a href='https://www.algumon.com/search/{keyword}'>전체 검색 결과</a></h2>"
         if mode == "initial":
-            text += f"<p><a href='{updates['link']}'>{updates['title']} ({updates['price']})</a></p>"
+            if updates:
+                text += f"<p><a href='{updates['link']}'>{updates['title']} ({updates['price']})</a></p>"
             subject = f"[{keyword}] 핫딜 알림 등록 완료"
             self.send_email(subject=subject, body=text, is_html=True)
         elif mode == "updates":
@@ -192,14 +198,19 @@ class App:
         if not self.crawler.fetch_html():
             return
 
+        wdate = self.data_manager.data["wdate"]
         products = self.crawler.parse_products()
         if not products:
-            print("크롤링 결과가 없습니다.")
+            # 초기화인 경우에는 크롤링 결과가 없어도 알림
+            if not wdate:
+                self.notification_manager.notify(first_product=None, mode="initial")
+                # wdate 저장
+                self.data_manager.update_data()
             return
 
         # 기존 데이터와 비교
         current_id = self.data_manager.data["current_id"]
-        if not current_id:
+        if not wdate:
             # 최초 실행: 첫 번째 상품 저장
             first_product = products[0]
             self.data_manager.update_data(
@@ -212,7 +223,7 @@ class App:
             self.notification_manager.notify(first_product, mode="initial")
         elif current_id == products[0]["id"]:
             # 갱신된 내용 없음
-            print("갱신된 내용이 없습니다.")
+            pass
         else:
             # 갱신된 내용 처리
             updates = []
