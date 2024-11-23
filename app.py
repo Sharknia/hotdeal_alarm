@@ -7,9 +7,18 @@ from bs4 import BeautifulSoup
 
 
 class DataManager:
+    _instance = None  # 싱글톤 인스턴스 저장
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(DataManager, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self, file_path="data.json"):
-        self.file_path = file_path
-        self.data = self.load_data()
+        if not hasattr(self, "initialized"):  # 초기화 방지
+            self.file_path = file_path
+            self.data = self.load_data()
+            self.initialized = True  # 초기화 상태 표시
 
     def load_data(self):
         if not os.path.exists(self.file_path):
@@ -121,17 +130,23 @@ class NotificationManager:
 
 
 class App:
-    def __init__(self, keyword, notification_manager=None):
+    def __init__(self, keyword=None, notification_manager=None):
         self.data_manager = DataManager()
-        self.crawler = Crawler(keyword)
         self.notification_manager = notification_manager or NotificationManager()
 
-    def run(self):
-        # 데이터 파일에 keyword 저장
-        if not self.data_manager.data["keyword"]:
-            self.data_manager.data["keyword"] = self.crawler.keyword
+        # 키워드를 우선순위에 따라 결정
+        if self.data_manager.data["keyword"]:
+            self.crawler = Crawler(self.data_manager.data["keyword"])
+        elif keyword:
+            self.crawler = Crawler(keyword)
+            self.data_manager.data["keyword"] = keyword
             self.data_manager.save_data()
+        else:
+            raise ValueError(
+                "키워드가 없습니다. data.json에 키워드가 없거나 제공되지 않았습니다."
+            )
 
+    def run(self):
         # 크롤링 수행
         if not self.crawler.fetch_html():
             return
@@ -180,6 +195,14 @@ class App:
 
 
 if __name__ == "__main__":
-    keyword = input("검색어를 입력하세요: ")
-    app = App(keyword)
-    app.run()
+    # DataManager 싱글톤 초기화
+    data_manager = DataManager()
+
+    # 키워드 결정
+    keyword = data_manager.data.get("keyword") or input("검색어를 입력하세요: ").strip()
+
+    try:
+        app = App(keyword)
+        app.run()
+    except ValueError as e:
+        print(f"에러: {e}")
