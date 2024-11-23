@@ -1,6 +1,8 @@
 import json
 import os
+import smtplib
 from datetime import datetime
+from email.mime.text import MIMEText
 
 import requests
 from bs4 import BeautifulSoup
@@ -111,8 +113,8 @@ class Crawler:
 
 
 class NotificationManager:
-    def __init__(self):
-        pass
+    def __init__(self, smtp_settings):
+        self.smtp_settings = smtp_settings
 
     def notify(self, updates, mode="initial"):
         if mode == "initial":
@@ -120,19 +122,51 @@ class NotificationManager:
             print(
                 f"ID: {updates['id']}, Title: {updates['title']}, Price: {updates['price']}, Meta Data: {updates['meta_data']}"
             )
-
         elif mode == "updates":
             print("갱신된 내용 발견:")
             for product in updates:
                 print(
                     f"ID: {product['id']}, Title: {product['title']}, Price: {product['price']}, Meta Data: {product['meta_data']}"
                 )
+            self.send_email(updates)
+
+    def send_email(self, updates):
+        try:
+            subject = "갱신된 상품 알림"
+            body = "\n".join(
+                [f"{product['title']} - {product['price']}" for product in updates]
+            )
+
+            msg = MIMEText(body, "plain")
+            msg["Subject"] = subject
+            msg["From"] = self.smtp_settings["email"]
+            msg["To"] = self.smtp_settings["email"]
+
+            with smtplib.SMTP_SSL(
+                self.smtp_settings["server"], int(self.smtp_settings["port"])
+            ) as server:
+                server.login(
+                    self.smtp_settings["email"], self.smtp_settings["password"]
+                )
+                server.sendmail(
+                    self.smtp_settings["email"],
+                    self.smtp_settings["email"],
+                    msg.as_string(),
+                )
+
+            print("갱신된 내용을 이메일로 전송했습니다.")
+        except Exception as e:
+            print(f"이메일 전송 실패: {e}")
 
 
 class App:
-    def __init__(self, keyword=None, notification_manager=None):
+    def __init__(
+        self,
+    ):
         self.data_manager = DataManager()
-        self.notification_manager = notification_manager or NotificationManager()
+        self.notification_manager = NotificationManager(
+            data_manager.data["smtp_settings"]
+        )
         self.crawler = Crawler(self.data_manager.data["keyword"])
 
     def run(self):
@@ -191,10 +225,24 @@ if __name__ == "__main__":
     if not keyword:
         keyword = input("검색어를 입력하세요: ").strip()
         data_manager.data["keyword"] = keyword
+        smtp_server = (
+            input("SMTP 서버명을 입력하세요 (기본값: smtp.kakao.com): ").strip()
+            or "smtp.kakao.com"
+        )
+        smtp_port = input("SMTP 포트번호를 입력하세요 (기본값: 465): ").strip() or "465"
+        smtp_email = input("SMTP 아이디(이메일)를 입력하세요: ").strip()
+        smtp_password = input("SMTP 비밀번호(앱 비밀번호)를 입력하세요: ").strip()
+
+        data_manager.data["smtp_settings"] = {
+            "server": smtp_server,
+            "port": smtp_port,
+            "email": smtp_email,
+            "password": smtp_password,
+        }
         data_manager.save_data()
 
     try:
-        app = App(keyword)
+        app = App()
         app.run()
     except ValueError as e:
         print(f"에러: {e}")
