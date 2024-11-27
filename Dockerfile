@@ -16,9 +16,5 @@ RUN poetry install --no-root
 # 코드 복사
 COPY . .
 
-# .env 파일 복사
-COPY .env /app/.env
-
-
 # 기본 실행 명령어
 CMD ["poetry", "run", "python", "main.py"]
