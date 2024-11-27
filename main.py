@@ -150,9 +150,10 @@ class Crawler:
 class NotificationManager:
     def __init__(self, smtp_settings):
         self.smtp_settings = smtp_settings
+        self.data_manager = DataManager()  # 싱글톤 인스턴스를 가져옴
 
     def notify(self, updates, mode="initial"):
-        keyword = data_manager.data["keyword"]
+        keyword = self.data_manager.data["keyword"]  # 싱글톤 인스턴스 사용
         subject = None
         text = f"<h2><a href='https://www.algumon.com/search/{keyword}'>전체 검색 결과</a></h2>"
         if mode == "initial":
