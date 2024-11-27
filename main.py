@@ -8,6 +8,10 @@ from email.mime.text import MIMEText
 import requests
 import schedule
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv  # .env 파일을 로드하기 위한 라이브러리
+
+# .env 파일 로드
+load_dotenv()
 
 
 def job():
@@ -33,16 +37,32 @@ class DataManager:
             self.initialized = True  # 초기화 상태 표시
 
     def load_data(self):
+        # .env 파일에서 설정값 읽기
+        keyword = os.getenv("KEYWORD", "")
+        smtp_server = os.getenv("SMTP_SERVER", "smtp.kakao.com")
+        smtp_port = os.getenv("SMTP_PORT", "465")
+        smtp_email = os.getenv("SMTP_EMAIL", "")
+        smtp_password = os.getenv("SMTP_PASSWORD", "")
+
+        # 기존 파일이 없으면 환경 변수 기반 초기 데이터 생성
         if not os.path.exists(self.file_path):
             return {
-                "keyword": "",
+                "keyword": keyword,
                 "current_title": "",
                 "current_id": "",
                 "current_link": "",
                 "current_price": "",
                 "current_meta_data": "",
                 "wdate": "",
+                "smtp_settings": {
+                    "server": smtp_server,
+                    "port": smtp_port,
+                    "email": smtp_email,
+                    "password": smtp_password,
+                },
             }
+
+        # 파일이 존재하면 JSON 로드
         with open(self.file_path, "r") as f:
             return json.load(f)
 
@@ -127,9 +147,6 @@ class Crawler:
         return self.products
 
 
-from email.mime.text import MIMEText
-
-
 class NotificationManager:
     def __init__(self, smtp_settings):
         self.smtp_settings = smtp_settings
@@ -184,12 +201,10 @@ class NotificationManager:
 
 
 class App:
-    def __init__(
-        self,
-    ):
+    def __init__(self):
         self.data_manager = DataManager()
         self.notification_manager = NotificationManager(
-            data_manager.data["smtp_settings"]
+            self.data_manager.data["smtp_settings"]
         )
         self.crawler = Crawler(self.data_manager.data["keyword"])
 
@@ -203,7 +218,7 @@ class App:
         if not products:
             # 초기화인 경우에는 크롤링 결과가 없어도 알림
             if not wdate:
-                self.notification_manager.notify(first_product=None, mode="initial")
+                self.notification_manager.notify(updates=None, mode="initial")
                 # wdate 저장
                 self.data_manager.update_data()
             return
@@ -247,29 +262,6 @@ class App:
 
 
 if __name__ == "__main__":
-    # DataManager 싱글톤 초기화
-    data_manager = DataManager()
-    keyword = data_manager.data.get("keyword")
-    # 초기화 안되어있는 경우
-    if not keyword:
-        keyword = input("검색어를 입력하세요: ").strip()
-        data_manager.data["keyword"] = keyword
-        smtp_server = (
-            input("SMTP 서버명을 입력하세요 (기본값: smtp.kakao.com): ").strip()
-            or "smtp.kakao.com"
-        )
-        smtp_port = input("SMTP 포트번호를 입력하세요 (기본값: 465): ").strip() or "465"
-        smtp_email = input("SMTP 아이디(이메일)를 입력하세요: ").strip()
-        smtp_password = input("SMTP 비밀번호(앱 비밀번호)를 입력하세요: ").strip()
-
-        data_manager.data["smtp_settings"] = {
-            "server": smtp_server,
-            "port": smtp_port,
-            "email": smtp_email,
-            "password": smtp_password,
-        }
-        data_manager.save_data()
-
     # 30분마다 실행 설정
     schedule.every(30).minutes.do(job)
 
