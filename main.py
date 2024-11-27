@@ -262,10 +262,10 @@ class App:
 
 
 if __name__ == "__main__":
-    # 30분마다 실행 설정
-    schedule.every(30).minutes.do(job)
+    # 매 시간 정시:30분에 실행
+    schedule.every().hour.at(":30").do(job)
 
-    # 스케줄 실행
+    # 스케줄 실행 (5분마다 확인)
     while True:
         schedule.run_pending()
-        time.sleep(1)
+        time.sleep(300)  # 5분 (300초)마다 확인
