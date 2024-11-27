@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import smtplib
 import time
@@ -10,6 +11,12 @@ import schedule
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv  # .env 파일을 로드하기 위한 라이브러리
 
+# 로깅 설정
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger()
+
 # .env 파일 로드
 load_dotenv()
 
@@ -19,7 +26,7 @@ def job():
         app = App()
         app.run()
     except ValueError as e:
-        print(f"에러: {e}")
+        logger.error(f"에러: {e}")
 
 
 class DataManager:
@@ -101,7 +108,7 @@ class Crawler:
             response.raise_for_status()
             self.html = response.text
         except requests.exceptions.RequestException as e:
-            print(f"HTML 가져오기 실패: {e}")
+            logger.error(f"HTML 가져오기 실패: {e}")
             return False
         return True
 
@@ -112,7 +119,7 @@ class Crawler:
         soup = BeautifulSoup(self.html, "html.parser")
         product_list = soup.find("ul", class_="product post-list")
         if not product_list:
-            print("상품 리스트를 찾을 수 없습니다.")
+            logger.warning("상품 리스트를 찾을 수 없습니다.")
             return []
 
         for li in product_list.find_all("li"):
@@ -170,7 +177,7 @@ class NotificationManager:
                 ]
             )
             self.send_email(subject, text, is_html=True)
-        print("알림 완료!")
+        logger.info("알림 완료!")
 
     def send_email(
         self,
@@ -196,9 +203,9 @@ class NotificationManager:
                     msg.as_string(),
                 )
 
-            print("메일 전송 완료!")
+            logger.info("메일 전송 완료!")
         except Exception as e:
-            print(f"메일 전송 실패: {e}")
+            logger.error(f"메일 전송 실패: {e}")
 
 
 class App:
@@ -268,19 +275,20 @@ def run_scheduled_tasks():
 
     # 최초 실행 시 작업
     if first_run:
-        print(f"최초 실행 작업 실행: {now}")
+        logger.info(f"최초 실행 작업 실행: {now}")
         job()
         first_run = False  # 최초 실행 이후 플래그 변경
         return
 
     # 매시 정시와 30분에 작업 실행
     elif now.minute % 30 <= 5:
-        print(f"정기 작업 실행: {now}")
+        logger.info(f"정기 작업 실행: {now}")
         job()
 
 
 if __name__ == "__main__":
     first_run = True  # 최초 실행 플래그
+    logger.info("프로그램 시작")
     while True:
         run_scheduled_tasks()
         time.sleep(300)  # 5분마다 확인
