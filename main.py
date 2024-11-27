@@ -261,11 +261,15 @@ class App:
             self.notification_manager.notify(updates, mode="updates")
 
 
-if __name__ == "__main__":
-    # 매 시간 정시:30분에 실행
-    schedule.every().hour.at(":30").do(job)
+def run_scheduled_tasks():
+    now = datetime.now()
+    # 현재 분을 30으로 나눈 나머지가 0~5 사이일 경우 작업 실행
+    if now.minute % 30 <= 5:
+        print(f"작업 실행: {now}")
+        job()
 
-    # 스케줄 실행 (5분마다 확인)
+
+if __name__ == "__main__":
     while True:
-        schedule.run_pending()
-        time.sleep(300)  # 5분 (300초)마다 확인
+        run_scheduled_tasks()
+        time.sleep(300)  # 5분마다 확인
