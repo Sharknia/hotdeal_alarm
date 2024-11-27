@@ -263,14 +263,24 @@ class App:
 
 
 def run_scheduled_tasks():
+    global first_run
     now = datetime.now()
-    # 현재 분을 30으로 나눈 나머지가 0~5 사이일 경우 작업 실행
-    if now.minute % 30 <= 5:
-        print(f"작업 실행: {now}")
+
+    # 최초 실행 시 작업
+    if first_run:
+        print(f"최초 실행 작업 실행: {now}")
+        job()
+        first_run = False  # 최초 실행 이후 플래그 변경
+        return
+
+    # 매시 정시와 30분에 작업 실행
+    elif now.minute % 30 <= 5:
+        print(f"정기 작업 실행: {now}")
         job()
 
 
 if __name__ == "__main__":
+    first_run = True  # 최초 실행 플래그
     while True:
         run_scheduled_tasks()
         time.sleep(300)  # 5분마다 확인
