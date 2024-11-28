@@ -34,7 +34,10 @@ class DataManager:
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
+            logger.info("DataManager 인스턴스 생성")
             cls._instance = super(DataManager, cls).__new__(cls)
+        else:
+            logger.info("DataManager 인스턴스 재사용")
         return cls._instance
 
     def __init__(self, file_path="data.json"):
@@ -50,9 +53,10 @@ class DataManager:
         smtp_port = os.getenv("SMTP_PORT", "465")
         smtp_email = os.getenv("SMTP_EMAIL", "")
         smtp_password = os.getenv("SMTP_PASSWORD", "")
-
+        logger.info("환경 변수 로드: %s, %s, %s", keyword, smtp_email, smtp_password)
         # 기존 파일이 없으면 환경 변수 기반 초기 데이터 생성
         if not os.path.exists(self.file_path):
+            logger.info("새로운 데이터 파일 생성")
             return {
                 "keyword": keyword,
                 "current_title": "",
