@@ -110,7 +110,7 @@ class Crawler:
                 "https": "http://8.219.97.248:80",
             }
 
-            response = requests.get(self.target_url, proxies=proxies, timeout=10)
+            response = requests.get(self.target_url, proxies=proxies, timeout=100)
             response.raise_for_status()
             self.html = response.text
             logger.info("HTML 가져오기 성공: %s", self.target_url)
