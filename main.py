@@ -170,6 +170,7 @@ class NotificationManager:
         keyword = self.data_manager.data["keyword"]  # 싱글톤 인스턴스 사용
         subject = None
         text = f"<h2><a href='https://www.algumon.com/search/{keyword}'>전체 검색 결과</a></h2>"
+        logger.info(f"알림 모드: {mode}")
         if mode == "initial":
             if updates:
                 text += f"<p><a href='{updates['link']}'>{updates['title']} ({updates['price']})</a></p>"
@@ -233,14 +234,17 @@ class App:
         if not products:
             # 초기화인 경우에는 크롤링 결과가 없어도 알림
             if not wdate:
+                logger.info("최초 실행 알림")
                 self.notification_manager.notify(updates=None, mode="initial")
                 # wdate 저장
                 self.data_manager.update_data()
+            logger.warning("상품 정보가 없습니다.")
             return
 
         # 기존 데이터와 비교
         current_id = self.data_manager.data["current_id"]
         if not wdate:
+            logger.info("상품이 있고, 최초 알림임")
             # 최초 실행: 첫 번째 상품 저장
             first_product = products[0]
             self.data_manager.update_data(
@@ -252,14 +256,17 @@ class App:
             )
             self.notification_manager.notify(first_product, mode="initial")
         elif current_id == products[0]["id"]:
+            logger.info("갱신된 내용 없음")
             # 갱신된 내용 없음
             pass
         else:
+            logger.info("갱신된 내용 있음")
             # 갱신된 내용 처리
             updates = []
             for product in products:
                 if product["id"] == current_id:
                     break
+                logger.info(f"새로운 상품: {product['title']}")
                 updates.append(product)
 
             # 첫 번째 데이터로 JSON 갱신
