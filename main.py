@@ -7,18 +7,13 @@ from datetime import datetime
 from email.mime.text import MIMEText
 
 import requests
-import schedule
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv  # .env 파일을 로드하기 위한 라이브러리
 
 # 로깅 설정
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger()
-
-# .env 파일 로드
-load_dotenv(override=True)  # 환경변수 재설정 강제
 
 
 def job():
@@ -48,6 +43,7 @@ class DataManager:
 
     def load_data(self):
         # .env 파일에서 설정값 읽기
+        logger.info(f"환경 변수 확인: KEYWORD={os.getenv('KEYWORD')}")
         keyword = os.getenv("KEYWORD", "")
         smtp_server = os.getenv("SMTP_SERVER", "smtp.kakao.com")
         smtp_port = os.getenv("SMTP_PORT", "465")
