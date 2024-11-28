@@ -18,7 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 # .env 파일 로드
-load_dotenv()
+load_dotenv(override=True)  # 환경변수 재설정 강제
 
 
 def job():
