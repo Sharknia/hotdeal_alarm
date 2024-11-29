@@ -15,7 +15,10 @@ def is_running_in_container():
 
 # 로컬 환경일 경우 .env 파일 로드
 if not is_running_in_container():
+    logger.info("로컬 환경: .env 파일 로드")
     load_dotenv()
+else:
+    logger.info("컨테이너 환경: .env 파일 무시")
 
 
 def job():
