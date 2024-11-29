@@ -21,13 +21,15 @@ class NotificationManager:
             subject = f"[{keyword}] 핫딜 알림 등록 완료"
             self.send_email(subject=subject, body=text, is_html=True)
         elif mode == "updates":
-            subject = f"[{keyword}] 새로운 핫딜 등장!"
-            text = text.join(
+            # 업데이트 모드에서 HTML 리스트 생성
+            product_list_html = "".join(
                 [
                     f"<p><a href='{product['link']}'>{product['title']}</a> - {product['price']}</p>"
                     for product in updates
                 ]
             )
+            text += product_list_html  # 기존 텍스트에 리스트를 추가
+            subject = f"[{keyword}] 새로운 핫딜 등장!"
             self.send_email(subject, text, is_html=True)
         logger.info("알림 완료!")
 
