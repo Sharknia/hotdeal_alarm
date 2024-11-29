@@ -1,3 +1,5 @@
+import time
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -10,18 +12,21 @@ class Crawler:
         keyword: str,
     ):
         self.keyword = keyword
+        # 알구몬 핫딜 리스트
         self.target_url_algumon = f"https://www.algumon.com/search/{keyword}"
+        # 펨코 핫딜 리스트
         self.target_url_fmkorea = (
             f"https://www.fmkorea.com/index.php?mid=hotdeal&page=1"
         )
+        # 무료 프록시 사이트
+        self.target_url_proxy = "https://www.sslproxies.org/"
         self.html_algumon = None
         self.products = []
-        self.proxies = [
-            "http://8.219.97.248:80",
-        ]
+        self.proxies = []
 
     def fetch_html(self):
         try:
+            self.proxy_setting()
             # 알구몬 fetch
             self.algumon_html = self.algumon_fetch()
 
@@ -31,10 +36,54 @@ class Crawler:
             return False
         return True
 
+    # 무료 프록시 사이트에서 HTTPS 프록시 가져오기
+    def proxy_setting(self):
+        try:
+            # 무료 프록시 사이트로부터 HTML 가져오기
+            response = requests.get(self.target_url_proxy, timeout=30)
+            response.raise_for_status()
+
+            # HTML 파싱
+            soup = BeautifulSoup(response.content, "html.parser")
+            table = soup.find("table", {"class": "table table-striped table-bordered"})
+
+            if not table:
+                logger.warning("프록시 테이블을 찾을 수 없습니다.")
+                return
+            cnt = 0
+            # 테이블에서 HTTPS 지원 프록시 추출
+            rows = table.find("tbody").find_all("tr")  # 테이블의 행 가져오기
+            proxies = []
+            for row in rows[:100]:  # 상위 10개의 항목
+                cols = row.find_all("td")
+                ip = cols[0].text.strip()  # IP Address
+                port = cols[1].text.strip()  # Port
+                anonymity = cols[4].text.strip()  # 익명도
+                https_support = cols[6].text.strip()  # HTTPS 지원 여부
+
+                if https_support == "yes" and anonymity == "anonymous":
+                    proxies.append(f"http://{ip}:{port}")
+                    cnt += 1
+                if cnt == 10:
+                    break
+
+            # 프록시 리스트 업데이트
+            if proxies:
+                self.proxies = proxies
+                logger.info(f"프록시 설정 완료: {self.proxies}")
+            else:
+                logger.warning("HTTPS 지원 프록시를 찾지 못했습니다.")
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"프록시 가져오기 실패: {e}")
+
+        except Exception as e:
+            logger.error(f"프록시 설정 중 에러 발생: {e}")
+
     def algumon_fetch(self):
         try:
             response = requests.get(self.target_url_algumon, timeout=100)
-            if response.status_code == 403:
+            if response.status_code == 200:
                 logger.warning("403 Forbidden: IP 차단, 프록시로 시도")
                 for proxy in self.proxies:
                     try:
@@ -43,9 +92,11 @@ class Crawler:
                             self.target_url_algumon, proxies=proxies, timeout=100
                         )
                         if response.status_code == 200:
+                            logger.info(f"프록시 : {proxy}로 가져오기 성공")
                             return response.text
+                        time.sleep(3)
                     except requests.exceptions.RequestException as e:
-                        logger.error(f"다음 프록시 재시도: {e}")
+                        logger.error(f"프록시 : {proxy}로 가져오기 실패: {e}")
                         continue
                 # while문을 다 돌아도 200이 아니면 결국 가져오기 실패이므로 None 반환
                 logger.error("알구몬 프록시로도 가져오기 실패")
