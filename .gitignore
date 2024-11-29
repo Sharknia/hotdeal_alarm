@@ -1,2 +1,91 @@
 .env
 data.json
+
+# Python 기본 설정
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+
+# 환경 설정 파일
+.env
+*.env
+
+# 가상 환경 디렉터리
+venv/
+.venv/
+env/
+.env/
+ENV/
+.virtualenv/
+.venv.bak/
+
+# 운영 체제별 파일
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE 및 편집기 설정 파일
+.vscode/
+.idea/
+*.iml
+
+# 테스트 결과
+.coverage
+.tox/
+.pytest_cache/
+htmlcov/
+.nox/
+.cache/
+
+# 로그 파일
+*.log
+*.out
+*.err
+
+# 데이터베이스 및 임시 파일
+*.sqlite3
+*.db
+*.sql
+*.bak
+*.tmp
+
+# Jupyter Notebook 체크포인트
+.ipynb_checkpoints/
+
+# 패키지 관리자 관련
+*.pip
+*.lock
+poetry.lock
+Pipfile.lock
+
+# Docker 관련
+docker-compose.override.yml
+.dockerignore
+
+# 특정 프레임워크 관련 (선택적으로 추가)
+# Django
+*.migrations/
+*.static/
+media/
+
+# Flask
+instance/
+*.db
+
+# FastAPI
+*.env.*
+
+# MyPy 캐시
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# PyInstaller
+*.spec
