@@ -25,9 +25,12 @@ class Crawler:
                 "https": "http://8.219.97.248:80",
             }
 
-            response = requests.get(
-                self.target_url_algumon, proxies=proxies, timeout=100
-            )
+            response = requests.get(self.target_url_algumon, timeout=100)
+            if response.status_code == 403:
+                logger.warning("403 Forbidden: IP 차단, 프록시로 시도")
+                response = requests.get(
+                    self.target_url_algumon, proxies=proxies, timeout=100
+                )
             response.raise_for_status()
             self.html = response.text
             logger.info("HTML 가져오기 성공: %s", self.target_url_algumon)
