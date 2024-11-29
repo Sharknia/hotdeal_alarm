@@ -31,8 +31,6 @@ class DataManager:
         if not cls._instance:
             logger.info("DataManager 인스턴스 생성")
             cls._instance = super(DataManager, cls).__new__(cls)
-        else:
-            logger.info("DataManager 인스턴스 재사용")
         return cls._instance
 
     def __init__(self, file_path="data.json"):
