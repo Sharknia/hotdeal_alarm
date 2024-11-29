@@ -1,9 +1,8 @@
 import smtplib
 from email.mime.text import MIMEText
 
-from data_manager import DataManager
-
 from modules import logger
+from modules.data_manager import DataManager
 
 
 class NotificationManager:

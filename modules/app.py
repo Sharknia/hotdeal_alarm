@@ -1,8 +1,7 @@
-from crawler import Crawler
-from data_manager import DataManager
-from notification_manager import NotificationManager
-
 from modules import logger
+from modules.crawler import Crawler
+from modules.data_manager import DataManager
+from modules.notification_manager import NotificationManager
 
 
 class App:
