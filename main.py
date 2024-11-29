@@ -1,8 +1,21 @@
+import os
 import time
 from datetime import datetime
 
+from dotenv import load_dotenv
+
 from modules import logger
 from modules.app import App
+
+
+# 컨테이너 환경 감지
+def is_running_in_container():
+    return os.path.exists("/.dockerenv")
+
+
+# 로컬 환경일 경우 .env 파일 로드
+if not is_running_in_container():
+    load_dotenv()
 
 
 def job():
