@@ -29,7 +29,7 @@ class DataManager:
         smtp_port = os.getenv("SMTP_PORT", "465")
         smtp_email = os.getenv("SMTP_EMAIL", "")
         smtp_password = os.getenv("SMTP_PASSWORD", "")
-        logger.info("환경 변수 로드: %s, %s, %s", keyword, smtp_email, smtp_password)
+        logger.info("환경 변수 로드: %s, %s", keyword, smtp_email)
         # 기존 파일이 없으면 환경 변수 기반 초기 데이터 생성
         if not os.path.exists(self.file_path):
             logger.info("새로운 데이터 파일 생성")
