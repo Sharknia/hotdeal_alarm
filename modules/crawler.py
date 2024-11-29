@@ -72,7 +72,7 @@ class Crawler:
                 self.proxies = proxies
                 logger.info(f"프록시 설정 완료: {self.proxies}")
             else:
-                logger.warning("HTTPS 지원 프록시를 찾지 못했습니다.")
+                logger.warning("HTTPS 지원 및 엘리트가 아닌 프록시를 찾지 못했습니다.")
 
         except requests.exceptions.RequestException as e:
             logger.error(f"프록시 가져오기 실패: {e}")
@@ -83,7 +83,7 @@ class Crawler:
     def algumon_fetch(self):
         try:
             response = requests.get(self.target_url_algumon, timeout=100)
-            if response.status_code == 200:
+            if response.status_code == 403:
                 logger.warning("403 Forbidden: IP 차단, 프록시로 시도")
                 for proxy in self.proxies:
                     try:
@@ -92,7 +92,7 @@ class Crawler:
                             self.target_url_algumon, proxies=proxies, timeout=100
                         )
                         if response.status_code == 200:
-                            logger.info(f"프록시 : {proxy}로 가져오기 성공")
+                            logger.info(f"프록시 : {proxy}로 알구몬 HTML 가져오기 성공")
                             return response.text
                         time.sleep(3)
                     except requests.exceptions.RequestException as e:
