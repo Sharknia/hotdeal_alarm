@@ -28,7 +28,7 @@ class Crawler:
         try:
             self.proxy_setting()
             # 알구몬 fetch
-            self.algumon_html = self.algumon_fetch()
+            self.html_algumon = self.algumon_fetch()
 
             # fmkorea fetch
         except requests.exceptions.RequestException as e:
@@ -112,7 +112,6 @@ class Crawler:
     def parse_products_algumon(self):
         if not self.html_algumon:
             return []
-
         soup = BeautifulSoup(self.html_algumon, "html.parser")
         product_list = soup.find("ul", class_="product post-list")
         if not product_list:
