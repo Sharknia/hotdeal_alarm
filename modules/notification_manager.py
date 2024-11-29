@@ -22,7 +22,7 @@ class NotificationManager:
             self.send_email(subject=subject, body=text, is_html=True)
         elif mode == "updates":
             subject = f"[{keyword}] 새로운 핫딜 등장!"
-            text = "".join(
+            text = text.join(
                 [
                     f"<p><a href='{product['link']}'>{product['title']}</a> - {product['price']}</p>"
                     for product in updates
