@@ -1,5 +1,5 @@
 # 베이스 이미지
-FROM python:3.9-slim
+FROM python:3.12-slim
 
 # Poetry 설치
 RUN pip install poetry
