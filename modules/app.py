@@ -18,7 +18,7 @@ class App:
             return
 
         wdate = self.data_manager.data["wdate"]
-        products = self.crawler.parse_products()
+        products = self.crawler.parse_products_algumon()
         if not products:
             # 초기화인 경우에는 크롤링 결과가 없어도 알림
             if not wdate:

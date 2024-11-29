@@ -5,10 +5,15 @@ from modules import logger
 
 
 class Crawler:
-    def __init__(self, keyword):
+    def __init__(
+        self,
+        keyword: str,
+    ):
         self.keyword = keyword
-        self.base_url = "https://www.algumon.com/search/"
-        self.target_url = f"{self.base_url}{keyword}"
+        self.target_url_algumon = f"https://www.algumon.com/search/{keyword}"
+        self.target_url_fmkorea = (
+            f"https://www.fmkorea.com/index.php?mid=hotdeal&page=1"
+        )
         self.html = None
         self.products = []
 
@@ -20,16 +25,19 @@ class Crawler:
                 "https": "http://8.219.97.248:80",
             }
 
-            response = requests.get(self.target_url, proxies=proxies, timeout=100)
+            response = requests.get(
+                self.target_url_algumon, proxies=proxies, timeout=100
+            )
             response.raise_for_status()
             self.html = response.text
-            logger.info("HTML 가져오기 성공: %s", self.target_url)
+            logger.info("HTML 가져오기 성공: %s", self.target_url_algumon)
         except requests.exceptions.RequestException as e:
             logger.error(f"HTML 가져오기 실패: {e}")
             return False
         return True
 
-    def parse_products(self):
+    # 알구몬의 데이터를 정리
+    def parse_products_algumon(self):
         if not self.html:
             return []
 
