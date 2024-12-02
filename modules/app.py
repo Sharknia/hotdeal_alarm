@@ -7,9 +7,7 @@ from modules.notification_manager import NotificationManager
 class App:
     def __init__(self):
         self.data_manager = DataManager()
-        self.notification_manager = NotificationManager(
-            self.data_manager.data["smtp_settings"]
-        )
+        self.notification_manager = NotificationManager()
         self.crawler = Crawler(self.data_manager.data["keyword"])
 
     def run(self):

@@ -6,9 +6,9 @@ from modules.data_manager import DataManager
 
 
 class NotificationManager:
-    def __init__(self, smtp_settings):
-        self.smtp_settings = smtp_settings
+    def __init__(self):
         self.data_manager = DataManager()  # 싱글톤 인스턴스를 가져옴
+        self.smtp_settings = self.data_manager.data["smtp_settings"]
 
     def notify(self, updates, mode="initial"):
         keyword = self.data_manager.data["keyword"]  # 싱글톤 인스턴스 사용
