@@ -7,8 +7,8 @@ RUN pip install poetry
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# Poetry 프로젝트 파일 복사
-COPY pyproject.toml poetry.lock ./
+# 프로젝트 설정 파일 및 .env 파일 복사
+COPY pyproject.toml poetry.lock .env ./
 
 # 의존성 설치
 RUN poetry install --no-root
