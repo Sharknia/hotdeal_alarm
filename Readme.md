@@ -70,6 +70,10 @@ SMTP_PASSWORD={stmp 패스워드}
         ```bash
         make log
         ```
+    2. 패치 후 이미지 재빌드 & 컨테이너 재실행
+        ```bash
+        make rebuild
+        ```
 
 ## 공통 설명
 
