@@ -67,7 +67,7 @@ class Crawler:
 
             # 프록시 리스트 업데이트
             if proxies:
-                logger.info(f"프록시 설정 완료: {self.proxies}")
+                logger.info(f"프록시 설정 완료: {proxies}")
             else:
                 logger.warning("HTTPS 지원 및 엘리트가 아닌 프록시를 찾지 못했습니다.")
             return proxies
