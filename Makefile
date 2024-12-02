@@ -21,6 +21,10 @@ delete:
 		docker exec $(CONTAINER_NAME) python /app/utils/delete_keyword.py "$(KEYWORD)"; \
 	fi
 
+# 컨테이너 로그 확인
+log:
+	docker logs $(CONTAINER_NAME)
+
 # 이미지 빌드 및 컨테이너 실행
 build:
 	docker build -t $(CONTAINER_NAME) .

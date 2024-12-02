@@ -68,7 +68,7 @@ SMTP_PASSWORD={stmp 패스워드}
 3. 도커 관련 MAKE 명령어
     1. 컨테이너 로그 확인
         ```bash
-        make logs
+        make log
         ```
 
 ## 공통 설명
