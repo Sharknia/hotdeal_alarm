@@ -1,5 +1,6 @@
 .env
 data.json
+*_data.json
 
 # Python 기본 설정
 __pycache__/
