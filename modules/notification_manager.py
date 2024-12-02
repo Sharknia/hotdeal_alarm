@@ -46,18 +46,16 @@ class NotificationManager:
         try:
             msg = MIMEText(body, "html" if is_html else "plain")  # HTML 형식 지원
             msg["Subject"] = subject
-            msg["From"] = self.smtp_settings["email"]
-            msg["To"] = self.smtp_settings["email"]
+            msg["From"] = self.smtp_settings.email
+            msg["To"] = self.smtp_settings.email
 
             with smtplib.SMTP_SSL(
-                self.smtp_settings["server"], int(self.smtp_settings["port"])
+                self.smtp_settings.server, int(self.smtp_settings.port)
             ) as server:
-                server.login(
-                    self.smtp_settings["email"], self.smtp_settings["password"]
-                )
+                server.login(self.smtp_settings.email, self.smtp_settings.password)
                 server.sendmail(
-                    self.smtp_settings["email"],
-                    self.smtp_settings["email"],
+                    self.smtp_settings.email,
+                    self.smtp_settings.email,
                     msg.as_string(),
                 )
 

@@ -1,6 +1,6 @@
 import json
 import os
-from dataclasses import asdict
+from dataclasses import asdict, is_dataclass
 from datetime import datetime
 from typing import Optional
 
@@ -41,7 +41,7 @@ class DataManager:
         if not os.path.exists(self.file_path):
             logger.info("새로운 데이터 파일 생성")
             initial_data = {
-                "keyword": {},
+                "keyword": [],
                 "smtp_settings": asdict(smtp_settings),
             }
             with open(self.file_path, "w") as f:
@@ -65,16 +65,25 @@ class DataManager:
         keyword: str,
         keyword_data: KeywordData = None,
     ) -> KeywordData:
-        # keyword_data.json 형식의 파일을 존재한다면 수정, 없다면 생성
         keyword_data_path = f"{keyword}_data.json"
+        data = None
         if os.path.exists(keyword_data_path):
             with open(keyword_data_path, "r") as f:
-                data = json.load(f)
-            data.update(keyword_data)
+                existing_data = json.load(f)
+
+            logger.info(f"[{keyword}] 데이터 업데이트: {asdict(keyword_data)}")
+            existing_data.update(asdict(keyword_data))
+            data = existing_data
         else:
-            data = keyword_data
+            data = asdict(keyword_data)
+            logger.warning(f"[{keyword}] 데이터 파일이 없습니다. 생성합니다. {data}")
+            with open(keyword_data_path, "w") as f:
+                json.dump(data, f, indent=4)
+
+        # JSON 파일 저장
         with open(keyword_data_path, "w") as f:
             json.dump(data, f, indent=4)
+
         return keyword_data
 
     def load_keyword_data(
@@ -83,7 +92,16 @@ class DataManager:
     ) -> Optional[KeywordData]:
         keyword_data_path = f"{keyword}_data.json"
         if not os.path.exists(keyword_data_path):
-            return None
+            # 빈 형태의 데이터 파일 생성
+            empty_data = KeywordData(
+                current_id=None,
+                current_title=None,
+                current_link=None,
+                current_price=None,
+                current_meta_data=None,
+                wdate=datetime.now().isoformat(),
+            )
+            return self.update_keyword_data(keyword=keyword, keyword_data=empty_data)
         with open(keyword_data_path, "r") as f:
             data = json.load(f)
             return KeywordData(**data)

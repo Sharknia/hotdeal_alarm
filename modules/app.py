@@ -13,7 +13,7 @@ class App:
         self.notification_manager: NotificationManager = NotificationManager()
 
     def run(self):
-        keywords = self.data_manager.data.keyword.keys()
+        keywords = self.data_manager.data.keyword
         if not keywords:
             logger.warning("키워드가 없습니다.")
             return
@@ -34,7 +34,6 @@ class App:
 
         # 키워드에 해당하는 json 파일 로드
         keyword_data: KeywordData = self.data_manager.load_keyword_data(keyword)
-
         # 크롤링 결과가 없는 경우
         if not products:
             # 최초 알림인 경우
@@ -50,14 +49,14 @@ class App:
         # 기존 데이터와 비교
         current_id = keyword_data.current_id
         # 첫번째 데이터 내용 저장
-        new_keyword_data: KeywordData = {
-            "current_id": products[0]["id"],
-            "current_title": products[0]["title"],
-            "current_link": products[0]["link"],
-            "current_price": products[0]["price"],
-            "current_meta_data": products[0]["meta_data"],
-            "wdate": datetime.now().isoformat(),
-        }
+        new_keyword_data: KeywordData = KeywordData(
+            current_id=products[0]["id"],
+            current_title=products[0]["title"],
+            current_link=products[0]["link"],
+            current_price=products[0]["price"],
+            current_meta_data=products[0]["meta_data"],
+            wdate=datetime.now().isoformat(),
+        )
         # 최초 알림인 경우
         if not current_id:
             logger.info(f"[{keyword}] 검색된 상품이 있고, 최초 알림임")
@@ -68,7 +67,9 @@ class App:
                 keyword_data=new_keyword_data,
             )
             self.notification_manager.notify(
-                first_product, keyword=keyword, mode="initial"
+                updates=first_product,
+                keyword=keyword,
+                mode="initial",
             )
         # 최초 실행이 아니고 갱신된 내용이 없는 경우
         elif current_id == products[0]["id"]:
@@ -93,4 +94,8 @@ class App:
             )
 
             # 알림 출력
-            self.notification_manager.notify(updates, keyword=keyword, mode="updates")
+            self.notification_manager.notify(
+                updates=updates,
+                keyword=keyword,
+                mode="updates",
+            )

@@ -22,11 +22,8 @@ else:
 
 
 def job():
-    try:
-        app = App()
-        app.run()
-    except ValueError as e:
-        logger.error(f"에러: {e}")
+    app = App()
+    app.run()
 
 
 def run_scheduled_tasks(first_run):
