@@ -8,10 +8,14 @@ from modules.data_manager import DataManager
 class NotificationManager:
     def __init__(self):
         self.data_manager = DataManager()  # 싱글톤 인스턴스를 가져옴
-        self.smtp_settings = self.data_manager.data["smtp_settings"]
+        self.smtp_settings = self.data_manager.data.smtp_settings  # 속성으로 접근
 
-    def notify(self, updates, mode="initial"):
-        keyword = self.data_manager.data["keyword"]  # 싱글톤 인스턴스 사용
+    def notify(
+        self,
+        keyword,
+        updates,
+        mode="initial",
+    ):
         subject = None
         text = f"<h2><a href='https://www.algumon.com/search/{keyword}'>전체 검색 결과</a></h2>"
         logger.info(f"알림 모드: {mode}")

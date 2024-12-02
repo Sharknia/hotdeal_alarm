@@ -6,7 +6,6 @@
 # .env 생성
 
 ```bash
-KEYWORD=스타일러
 SMTP_SERVER=smtp.kakao.com
 SMTP_PORT=465
 SMTP_EMAIL=zel@kakao.com
