@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from models.keyword_data import KeywordData
@@ -19,6 +20,7 @@ class App:
             return
         for keyword in keywords:
             self.execute_crawler(keyword)
+        self.data_manager.data_cleaner(keywords)
 
     def execute_crawler(
         self,

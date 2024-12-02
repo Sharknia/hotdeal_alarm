@@ -36,7 +36,7 @@ class DataManager:
             email=os.getenv("SMTP_EMAIL", ""),
             password=os.getenv("SMTP_PASSWORD", ""),
         )
-        logger.info(f"SMTP 설정: {smtp_settings}")
+        logger.info(f"SMTP 설정 완료")
         # 기존 파일이 없으면 초기 데이터 생성
         if not os.path.exists(self.file_path):
             logger.info("새로운 데이터 파일 생성")
@@ -55,10 +55,6 @@ class DataManager:
                 keyword=loaded_data.get("keyword", {}),
                 smtp_settings=SmtpSettings(**loaded_data.get("smtp_settings", {})),
             )
-
-    def save_data(self):
-        with open(self.file_path, "w") as f:
-            json.dump(self.data, f, indent=4)
 
     def update_keyword_data(
         self,
@@ -105,3 +101,17 @@ class DataManager:
         with open(keyword_data_path, "r") as f:
             data = json.load(f)
             return KeywordData(**data)
+
+    def data_cleaner(
+        self,
+        keywords: list,
+    ):
+        # 키워드에 존재하지 않는데 존재하는 *_data.json 쓰레기 파일 삭제
+        # 현재 경로의 *_data.json 파일 목록 조회
+        data_files = [file for file in os.listdir() if file.endswith("_data.json")]
+        # 키워드 리스트와 비교
+        for data_file in data_files:
+            keyword = data_file.replace("_data.json", "")
+            if keyword not in keywords:
+                logger.info(f"[{keyword}] 데이터 파일 삭제")
+                os.remove(data_file)
