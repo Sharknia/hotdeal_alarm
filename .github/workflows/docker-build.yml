@@ -1,0 +1,32 @@
+name: Build and Push Docker Image
+
+on:
+    push:
+        tags:
+            - 'v*' # v로 시작하는 태그에만 반응
+
+jobs:
+    build-and-push:
+        name: Build and Push Docker Image
+        runs-on: ubuntu-latest
+
+        steps:
+            # 1. 레포지토리 클론
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            # 2. Docker 이미지 빌드
+            - name: Build Docker image
+              run: |
+                  # GitHub 레포지토리 태그를 Docker 이미지 태그로 사용
+                  docker build -t ghcr.io/${{ github.repository }}:${{ github.ref_name }} .
+                  docker tag ghcr.io/${{ github.repository }}:${{ github.ref_name }} ghcr.io/${{ github.repository }}:latest
+
+            # 3. GitHub Packages에 이미지 푸시
+            - name: Log in to GitHub Container Registry
+              run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            - name: Push Docker image
+              run: |
+                  docker push ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+                  docker push ghcr.io/${{ github.repository }}:latest
