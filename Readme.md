@@ -36,15 +36,11 @@ SMTP_PASSWORD={stmp 패스워드}
 
 **docker**가 설치되어 있어야 합니다.
 
-1. 이미지 굽기
+1. 이미지 빌드 및 컨테이너 실행
     ```bash
-    docker build -t hotdeal_alarm .
+    make build
     ```
-2. 컨테이너 실행
-    ```bash
-    docker run -d --env-file .env --name hotdeal_alarm hotdeal_alarm
-    ```
-3. 키워드 관련 명령어
+2. 키워드 관련 명령어
     1. 현재 등록된 키워드 조회
         ```bash
         docker exec hotdeal_alarm python /app/utils/view_keyword.py
@@ -68,6 +64,11 @@ SMTP_PASSWORD={stmp 패스워드}
         또는
         ```bash
         make delete KEYWORD="삭제할 키워드"
+        ```
+3. 도커 관련 MAKE 명령어
+    1. 컨테이너 로그 확인
+        ```bash
+        make logs
         ```
 
 ## 공통 설명
