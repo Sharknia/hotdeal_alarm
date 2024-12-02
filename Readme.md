@@ -43,25 +43,13 @@ SMTP_PASSWORD={stmp 패스워드}
 2. 키워드 관련 명령어
     1. 현재 등록된 키워드 조회
         ```bash
-        docker exec hotdeal_alarm python /app/utils/view_keyword.py
-        ```
-        또는
-        ```bash
         make view
         ```
     2. 키워드 추가
         ```bash
-        docker exec hotdeal_alarm python /app/utils/append_keyword.py "추가할 키워드"
-        ```
-        또는
-        ```bash
         make append KEYWORD="추가할 키워드"
         ```
     3. 특정 키워드 삭제
-        ```bash
-        docker exec hotdeal_alarm python /app/utils/delete_keyword.py "삭제할 키워드"
-        ```
-        또는
         ```bash
         make delete KEYWORD="삭제할 키워드"
         ```
