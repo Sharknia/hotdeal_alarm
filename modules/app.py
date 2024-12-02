@@ -14,6 +14,8 @@ class App:
         self.notification_manager: NotificationManager = NotificationManager()
 
     def run(self):
+        # 키워드 갱신
+        self.data_manager.data = self.data_manager.file_load()
         keywords = self.data_manager.data.keyword
         if not keywords:
             logger.warning("키워드가 없습니다.")

@@ -28,6 +28,16 @@ class DataManager:
             self.data = self.load_data()
             self.initialized = True  # 초기화 상태 표시
 
+    # data.json을 다시 읽어서 keyword 데이터를 업데이트합니다.
+    def file_load(self):
+        # 파일이 존재하면 JSON 로드
+        with open(self.file_path, "r") as f:
+            loaded_data = json.load(f)
+            return DataModel(
+                keyword=loaded_data.get("keyword", {}),
+                smtp_settings=SmtpSettings(**loaded_data.get("smtp_settings", {})),
+            )
+
     def load_data(self) -> DataModel:
         # .env 파일에서 설정값 읽기
         smtp_settings = SmtpSettings(
@@ -49,12 +59,7 @@ class DataManager:
             return DataModel(smtp_settings=smtp_settings)
 
         # 파일이 존재하면 JSON 로드
-        with open(self.file_path, "r") as f:
-            loaded_data = json.load(f)
-            return DataModel(
-                keyword=loaded_data.get("keyword", {}),
-                smtp_settings=SmtpSettings(**loaded_data.get("smtp_settings", {})),
-            )
+        return self.file_load()
 
     def update_keyword_data(
         self,
