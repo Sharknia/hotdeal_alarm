@@ -27,7 +27,9 @@ class Crawler:
         try:
             # 알구몬 fetch
             self.html_algumon = self.algumon_fetch()
-
+            if not self.html_algumon:
+                logger.error(f"알구몬 HTML 가져오기 실패")
+                return False
             # fmkorea fetch
         except requests.exceptions.RequestException as e:
             logger.error(f"알구몬 HTML 가져오기 실패: {e}")
