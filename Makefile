@@ -55,3 +55,5 @@ patch:
 	@docker run -d --name $(CONTAINER_NAME) $(CONTAINER_NAME)
 	@echo "Data restore in progress..."
 	@docker cp ./data $(CONTAINER_NAME):/app/data
+	@echo "Data restore completed."
+	@rm -rf data
