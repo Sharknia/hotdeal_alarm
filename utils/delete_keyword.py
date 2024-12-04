@@ -2,7 +2,7 @@ import json
 import sys
 
 # JSON 파일 경로
-json_file_path = "/app/data.json"
+json_file_path = "/app/data/data.json"
 
 
 def delete_keyword(target_keyword):

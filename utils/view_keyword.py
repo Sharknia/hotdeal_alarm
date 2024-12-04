@@ -1,7 +1,7 @@
 import json
 
 # JSON 파일 경로
-json_file_path = "/app/data.json"
+json_file_path = "/app/data/data.json"
 
 
 def view_keywords():
