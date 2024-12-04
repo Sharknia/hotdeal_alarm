@@ -7,11 +7,11 @@ view:
 
 # 키워드 추가
 append:
-    @docker exec -i $(CONTAINER_NAME) python /app/utils/append_keyword.py
+    docker exec -i $(CONTAINER_NAME) python /app/utils/append_keyword.py
 	
 # 키워드 삭제
 delete:
-	@docker exec -i $(CONTAINER_NAME) python /app/utils/delete_keyword.py
+	docker exec -i $(CONTAINER_NAME) python /app/utils/delete_keyword.py
 
 # 컨테이너 로그 확인
 log:
