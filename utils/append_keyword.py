@@ -37,7 +37,10 @@ def add_keyword(new_keyword):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python modify_json.py <keyword>")
-    else:
-        add_keyword(sys.argv[1])
+    while True:
+        new_keyword = input("추가할 키워드를 입력하세요: ").strip()  # 공백 제거
+        if not new_keyword:  # 빈 문자열 검사
+            print("키워드는 비어 있을 수 없습니다. 다시 입력해주세요.")
+            continue
+        add_keyword(new_keyword)
+        break

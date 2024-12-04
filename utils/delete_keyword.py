@@ -35,7 +35,10 @@ def delete_keyword(target_keyword):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python delete_keyword.py <keyword>")
-    else:
-        delete_keyword(sys.argv[1])
+    while True:
+        new_keyword = input("삭제할 키워드를 입력하세요: ").strip()  # 공백 제거
+        if not new_keyword:  # 빈 문자열 검사
+            print("키워드는 비어 있을 수 없습니다. 다시 입력해주세요.")
+            continue
+        delete_keyword(new_keyword)
+        break
