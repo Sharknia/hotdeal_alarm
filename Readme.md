@@ -47,11 +47,11 @@ SMTP_PASSWORD={stmp 패스워드}
         ```
     2. 키워드 추가
         ```bash
-        make append KEYWORD="추가할 키워드"
+        make append
         ```
     3. 특정 키워드 삭제
         ```bash
-        make delete KEYWORD="삭제할 키워드"
+        make delete
         ```
 3. 도커 관련 MAKE 명령어
     1. 컨테이너 로그 확인
