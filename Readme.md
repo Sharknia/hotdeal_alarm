@@ -59,8 +59,14 @@ SMTP_PASSWORD={stmp 패스워드}
         make log
         ```
     2. 패치 후 이미지 재빌드 & 컨테이너 재실행
+        - 이 명령어는 데이터는 유지하면서 패치를 실행합니다.
         ```bash
-        make rebuild
+        make patch
+        ```
+    3. 패치 후 데이터 초기화
+        - 이 명령어는 데이터까지 초기화합니다.
+        ```bash
+        make clean-rebuild
         ```
 
 ## 공통 설명

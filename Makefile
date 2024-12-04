@@ -42,7 +42,9 @@ clean-rebuild:
 	@docker run -d --name $(CONTAINER_NAME) $(CONTAINER_NAME)
 
 # 기존 컨테이너 및 이미지 삭제 후 빌드 및 실행 (데이터 유지)
-rebuild:
+patch:
+	@echo "Data backup in progress..."
+	@docker cp $(CONTAINER_NAME):/app/data ./data
 	@echo "Stopping and removing existing container..."
 	@docker rm -f $(CONTAINER_NAME) 2>/dev/null || true
 	@echo "Removing existing image..."
@@ -51,3 +53,5 @@ rebuild:
 	@docker build -t $(CONTAINER_NAME) .
 	@echo "Running new container..."
 	@docker run -d --name $(CONTAINER_NAME) $(CONTAINER_NAME)
+	@echo "Data restore in progress..."
+	@docker cp ./data $(CONTAINER_NAME):/app/data
