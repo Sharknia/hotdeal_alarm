@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 
 from models.keyword_data import KeywordData
@@ -16,13 +15,18 @@ class App:
     def run(self):
         # 키워드 갱신
         self.data_manager.data = self.data_manager.file_load()
+
+        # 크롤링 작업
         keywords = self.data_manager.data.keyword
         if not keywords:
             logger.warning("키워드가 없습니다.")
             return
         for keyword in keywords:
             self.execute_crawler(keyword)
+        
+        # 마무리 작업
         self.data_manager.data_cleaner(keywords)
+        Crawler.init_proxies()
 
     def execute_crawler(
         self,

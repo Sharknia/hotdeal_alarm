@@ -7,6 +7,8 @@ from modules import logger
 
 
 class Crawler:
+    proxies = []  # 클래스 속성으로 프록시 리스트 공유
+
     def __init__(
         self,
         keyword: str,
@@ -23,6 +25,12 @@ class Crawler:
         self.html_algumon = None
         self.products = []
 
+    @classmethod
+    def init_proxies(cls):
+        cls.proxies = []  # 클래스 속성을 초기화
+        logger.info("프록시 리스트가 초기화되었습니다.")
+        return cls.proxies
+
     def fetch_html(self):
         try:
             # 알구몬 fetch
@@ -37,46 +45,48 @@ class Crawler:
         return True
 
     # 무료 프록시 사이트에서 HTTPS 프록시 가져오기
-    def proxy_setting(self):
+    def set_proxy(self):
+        if Crawler.proxies:  # 클래스 속성을 참조
+            logger.info(f"기존 프록시를 재활용합니다: {Crawler.proxies}")
+            return Crawler.proxies
+
         try:
-            # 무료 프록시 사이트로부터 HTML 가져오기
             response = requests.get(self.target_url_proxy, timeout=30)
             response.raise_for_status()
 
-            # HTML 파싱
             soup = BeautifulSoup(response.content, "html.parser")
             table = soup.find("table", {"class": "table table-striped table-bordered"})
 
             if not table:
                 logger.warning("프록시 테이블을 찾을 수 없습니다.")
                 return
-            cnt = 0
-            # 테이블에서 HTTPS 지원 프록시 추출
-            rows = table.find("tbody").find_all("tr")  # 테이블의 행 가져오기
-            proxies = []
-            for row in rows[:100]:  # 상위 10개의 항목
-                cols = row.find_all("td")
-                ip = cols[0].text.strip()  # IP Address
-                port = cols[1].text.strip()  # Port
-                anonymity = cols[4].text.strip()  # 익명도
-                https_support = cols[6].text.strip()  # HTTPS 지원 여부
 
-                if https_support == "yes" and anonymity == "anonymous":
+            cnt = 0
+            rows = table.find("tbody").find_all("tr")
+            proxies = []
+            for row in rows[:100]:
+                cols = row.find_all("td")
+                ip = cols[0].text.strip()
+                port = cols[1].text.strip()
+                anonymity = cols[4].text.strip()
+                https_support = cols[6].text.strip()
+
+                if https_support.lower() == "yes" and anonymity.lower() == "anonymous":
                     proxies.append(f"http://{ip}:{port}")
                     cnt += 1
-                if cnt == 10:
+                if cnt == 15:
                     break
 
-            # 프록시 리스트 업데이트
+            Crawler.proxies = proxies  # 클래스 속성에 저장
             if proxies:
-                logger.info(f"프록시 설정 완료: {proxies}")
+                logger.info(f"프록시 설정 완료: {Crawler.proxies}")
             else:
-                logger.warning("HTTPS 지원 및 엘리트가 아닌 프록시를 찾지 못했습니다.")
-            return proxies
+                logger.warning("HTTPS 지원 및 익명 프록시를 찾지 못했습니다.")
+
+            return Crawler.proxies
 
         except requests.exceptions.RequestException as e:
             logger.error(f"프록시 가져오기 실패: {e}")
-
         except Exception as e:
             logger.error(f"프록시 설정 중 에러 발생: {e}")
 
@@ -85,7 +95,7 @@ class Crawler:
             response = requests.get(self.target_url_algumon, timeout=100)
             if response.status_code == 403:
                 logger.warning("403 Forbidden: IP 차단, 프록시로 시도")
-                proxies = self.proxy_setting()
+                proxies = self.set_proxy()
                 for proxy in proxies:
                     try:
                         proxies = {"http": proxy, "https": proxy}
