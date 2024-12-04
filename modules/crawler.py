@@ -17,12 +17,11 @@ class Crawler:
         # 알구몬 핫딜 리스트
         self.target_url_algumon = f"https://www.algumon.com/search/{keyword}"
         # 펨코 핫딜 리스트
-        self.target_url_fmkorea = (
-            f"https://www.fmkorea.com/index.php?mid=hotdeal&page=1"
-        )
+        self.target_url_fmkorea = f"https://www.fmkorea.com/index.php?mid=hotdeal&page="
         # 무료 프록시 사이트
         self.target_url_proxy = "https://www.sslproxies.org/"
         self.html_algumon = None
+        self.html_fmkorea = None
         self.products = []
 
     @classmethod
@@ -37,10 +36,16 @@ class Crawler:
             self.html_algumon = self.algumon_fetch()
             if not self.html_algumon:
                 logger.error(f"알구몬 HTML 가져오기 실패")
-                return False
             # fmkorea fetch
+            self.html_fmkorea = self.fmkorea_fetch()
+            if not self.html_fmkorea:
+                logger.error(f"FMkorea HTML 가져오기 실패")
+            # 둘 다 실패시 False 반환
+            if not self.html_algumon and not self.html_fmkorea:
+                logger.error(f"모든 HTML 가져오기 실패")
+                return False
         except requests.exceptions.RequestException as e:
-            logger.error(f"알구몬 HTML 가져오기 실패: {e}")
+            logger.error(f"HTML 가져오기 실패: {e}")
             return False
         return True
 
@@ -89,6 +94,16 @@ class Crawler:
             logger.error(f"프록시 가져오기 실패: {e}")
         except Exception as e:
             logger.error(f"프록시 설정 중 에러 발생: {e}")
+
+    def fmkorea_fetch(self):
+        page = 1
+        try:
+            while True:
+                response = requests.get(f"{self.target_url_fmkorea}{page}", timeout=100)
+        except requests.exceptions.RequestException as e:
+            logger.error(f"FMkorea HTML 가져오기 실패: {e}")
+            return None
+        pass
 
     def algumon_fetch(self):
         try:

@@ -38,6 +38,7 @@ class App:
             logger.error(f"[{keyword}] 크롤링 실패")
             return
 
+        # 알구몬 크롤링 결과 파싱
         products = crawler.parse_products_algumon()
 
         # 키워드에 해당하는 json 파일 로드
