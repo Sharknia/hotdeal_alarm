@@ -7,7 +7,7 @@ view:
 
 # 키워드 추가
 append:
-	docker exec -i $(CONTAINER_NAME) python /app/utils/append_keyword.python
+	docker exec -i $(CONTAINER_NAME) python /app/utils/append_keyword.py
 
 # 키워드 삭제
 delete:
