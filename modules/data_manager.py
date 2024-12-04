@@ -9,7 +9,6 @@ from models.keyword_data import KeywordData
 from modules import logger
 
 
-# DB 대신 최근 데이터를 JSON 파일로 관리합니다.
 class DataManager:
     _instance = None  # 싱글톤 인스턴스 저장
 
@@ -21,12 +20,20 @@ class DataManager:
 
     def __init__(
         self,
-        file_path="data.json",
+        file_path="data/data.json",
     ):
         if not hasattr(self, "initialized"):  # 초기화 방지
             self.file_path = file_path
+            self.ensure_data_folder()  # 폴더 확인 및 생성
             self.data = self.load_data()
             self.initialized = True  # 초기화 상태 표시
+
+    # data.json 파일 저장 경로의 폴더가 없으면 생성
+    def ensure_data_folder(self):
+        folder = os.path.dirname(self.file_path)  # 파일 경로에서 폴더 추출
+        if not os.path.exists(folder):
+            logger.info(f"데이터 폴더가 존재하지 않아 생성: {folder}")
+            os.makedirs(folder)
 
     # data.json을 다시 읽어서 keyword 데이터를 업데이트합니다.
     def file_load(self):
@@ -66,7 +73,7 @@ class DataManager:
         keyword: str,
         keyword_data: KeywordData = None,
     ) -> KeywordData:
-        keyword_data_path = f"{keyword}_data.json"
+        keyword_data_path = f"data/{keyword}_data.json"
         data = None
         if os.path.exists(keyword_data_path):
             with open(keyword_data_path, "r") as f:
@@ -91,7 +98,7 @@ class DataManager:
         self,
         keyword: str,
     ) -> Optional[KeywordData]:
-        keyword_data_path = f"{keyword}_data.json"
+        keyword_data_path = f"data/{keyword}_data.json"
         if not os.path.exists(keyword_data_path):
             # 빈 형태의 데이터 파일 생성
             empty_data = KeywordData(
@@ -107,16 +114,24 @@ class DataManager:
             data = json.load(f)
             return KeywordData(**data)
 
-    def data_cleaner(
-        self,
-        keywords: list,
-    ):
-        # 키워드에 존재하지 않는데 존재하는 *_data.json 쓰레기 파일 삭제
-        # 현재 경로의 *_data.json 파일 목록 조회
-        data_files = [file for file in os.listdir() if file.endswith("_data.json")]
-        # 키워드 리스트와 비교
+    def data_cleaner(self, keywords: list):
+        # data 폴더 경로 지정
+        data_folder = os.path.join(os.getcwd(), "data")
+
+        # data 폴더가 존재하지 않으면 경고 로그를 출력하고 종료
+        if not os.path.exists(data_folder):
+            logger.warning(f"폴더가 존재하지 않습니다: {data_folder}")
+            return
+
+        # data 폴더 내의 *_data.json 파일 목록 조회
+        data_files = [
+            file for file in os.listdir(data_folder) if file.endswith("_data.json")
+        ]
+
+        # 키워드 리스트와 비교하여 불필요한 파일 삭제
         for data_file in data_files:
             keyword = data_file.replace("_data.json", "")
             if keyword not in keywords:
-                logger.info(f"[{keyword}] 데이터 파일 삭제")
-                os.remove(data_file)
+                full_path = os.path.join(data_folder, data_file)
+                logger.info(f"[{keyword}] 데이터 파일 삭제: {full_path}")
+                os.remove(full_path)
