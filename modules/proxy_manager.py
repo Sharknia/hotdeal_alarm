@@ -1,5 +1,3 @@
-from threading import Lock
-
 import requests
 from bs4 import BeautifulSoup
 
