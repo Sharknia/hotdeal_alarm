@@ -6,10 +6,15 @@ from modules.base_crawler import BaseCrawler
 
 class AlgumonCrawler(BaseCrawler):
     @property
-    def url(self):
+    def url(
+        self,
+    ) -> str:
         return f"https://www.algumon.com/search/{self.keyword}"
 
-    def parse(self, html):
+    def parse(
+        self,
+        html: str,
+    ) -> list:
         soup = BeautifulSoup(html, "html.parser")
         product_list = soup.find("ul", class_="product post-list")
         if not product_list:
