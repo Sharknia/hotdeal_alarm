@@ -49,6 +49,7 @@ class BaseCrawler(ABC):
                 logger.warning(
                     f"403 Forbidden: 접근이 차단되었습니다. 프록시로 재시도합니다."
                 )
+                # 403이 발생하면 프록시를 사용하여 재시도
                 return self._fetch_with_proxy(target_url, timeout)
 
             response.raise_for_status()
