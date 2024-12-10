@@ -33,12 +33,16 @@ class App:
             algumon_crawler: AlgumonCrawler = AlgumonCrawler(keyword=keyword)
             algumon_result = algumon_crawler.crawl()
             print(f"algumon_result: {algumon_result}")
+
+            # 알구몬 데이터 저장
             del algumon_crawler
 
             # FMKorea 크롤링
             fmkorea_crawler: FMKoreaCrawler = FMKoreaCrawler(keyword=keyword)
             fmkorea_result = fmkorea_crawler.crawl()
             print(f"fmkorea_result: {fmkorea_result}")
+
+            # FMKorea 데이터 저장
             del fmkorea_crawler
 
         # 마무리 작업
