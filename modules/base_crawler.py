@@ -52,6 +52,7 @@ class BaseCrawler(ABC):
                 return self._fetch_with_proxy(target_url, timeout)
 
             response.raise_for_status()
+            logger.info(f"요청 성공: {target_url}")
             return response.text
 
         except requests.exceptions.RequestException as e:
