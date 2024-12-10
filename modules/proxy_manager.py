@@ -8,6 +8,7 @@ class ProxyManager:
     """싱글톤 프록시 관리자."""
 
     _instance = None
+    _initialized = False
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
