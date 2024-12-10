@@ -2,9 +2,13 @@ from datetime import datetime
 
 from models.keyword_data import KeywordData
 from modules import logger
+from modules.base_crawler import BaseCrawler
 from modules.crawler import Crawler
+from modules.crawlers.algumon import AlgumonCrawler
+from modules.crawlers.fmkorea import FMKoreaCrawler
 from modules.data_manager import DataManager
 from modules.notification_manager import NotificationManager
+from modules.proxy_manager import ProxyManager
 
 
 class App:
@@ -13,6 +17,9 @@ class App:
         self.notification_manager: NotificationManager = NotificationManager()
 
     def run(self):
+        # 프록시 초기화
+        proxy_manager = ProxyManager()
+        proxy_manager.fetch_proxies()
         # 키워드 갱신
         self.data_manager.data = self.data_manager.file_load()
 
@@ -22,11 +29,21 @@ class App:
             logger.warning("키워드가 없습니다.")
             return
         for keyword in keywords:
-            self.execute_crawler(keyword)
-        
+            # 알구몬 크롤링
+            algumon_crawler: AlgumonCrawler = AlgumonCrawler(keyword=keyword)
+            algumon_result = algumon_crawler.crawl()
+            print(f"algumon_result: {algumon_result}")
+            del algumon_crawler
+
+            # FMKorea 크롤링
+            fmkorea_crawler: FMKoreaCrawler = FMKoreaCrawler(keyword=keyword)
+            fmkorea_result = fmkorea_crawler.crawl()
+            print(f"fmkorea_result: {fmkorea_result}")
+            del fmkorea_crawler
+
         # 마무리 작업
         self.data_manager.data_cleaner(keywords)
-        Crawler.init_proxies()
+        proxy_manager.reset_proxies()
 
     def execute_crawler(
         self,

@@ -91,7 +91,6 @@ class BaseCrawler(ABC):
             self.results = self.parse(html)
         else:
             logger.error(f"크롤링 실패: {self.url}")
-        self.reset_results()
         return self.results
 
     def reset_results(
