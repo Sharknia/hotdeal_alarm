@@ -20,7 +20,7 @@ log:
 # 이미지 빌드 및 컨테이너 실행
 build:
 	docker build -t $(CONTAINER_NAME) .
-	docker run -d --name $(CONTAINER_NAME) $(CONTAINER_NAME)
+	docker run -d --name $(CONTAINER_NAME) -e TZ=Asia/Seoul $(CONTAINER_NAME)
 
 # 기존 컨테이너 및 이미지 삭제 후 빌드 및 실행 (데이터까지 초기화)
 clean-rebuild:
@@ -31,7 +31,7 @@ clean-rebuild:
 	@echo "Building new image..."
 	@docker build -t $(CONTAINER_NAME) .
 	@echo "Running new container..."
-	@docker run -d --name $(CONTAINER_NAME) $(CONTAINER_NAME)
+	@docker run -d --name $(CONTAINER_NAME) -e TZ=Asia/Seoul $(CONTAINER_NAME)
 
 # 기존 컨테이너 및 이미지 삭제 후 빌드 및 실행 (데이터 유지)
 patch:
@@ -44,7 +44,7 @@ patch:
 	@echo "Building new image..."
 	@docker build -t $(CONTAINER_NAME) .
 	@echo "Running new container..."
-	@docker run -d --name $(CONTAINER_NAME) $(CONTAINER_NAME)
+	@docker run -d --name $(CONTAINER_NAME) -e TZ=Asia/Seoul $(CONTAINER_NAME)
 	@echo "Data restore in progress..."
 	@docker cp ./data $(CONTAINER_NAME):/app/data
 	@echo "Data restore completed."
