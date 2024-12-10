@@ -19,12 +19,17 @@ class BaseCrawler(ABC):
 
     @property
     @abstractmethod
-    def url(self):
+    def url(
+        self,
+    ) -> str:
         """크롤링 대상 URL (하위 클래스에서 구현 필수)."""
         pass
 
     @abstractmethod
-    def parse(self, html):
+    def parse(
+        self,
+        html: str,
+    ) -> list:
         """파싱 로직 (사이트별 구현 필요)."""
         pass
 
@@ -32,7 +37,7 @@ class BaseCrawler(ABC):
         self,
         url: str = None,
         timeout: int = 100,
-    ):
+    ) -> str:
         """HTML 가져오기 (프록시 포함)."""
         target_url = url or self.url  # url이 명시되지 않으면 기본적으로 self.url 사용
         try:
@@ -77,16 +82,21 @@ class BaseCrawler(ABC):
         logger.error("모든 프록시를 사용했지만 요청에 실패했습니다.")
         return None
 
-    def crawl(self):
+    def crawl(
+        self,
+    ) -> list:
         """크롤링 실행 (필요 시 오버라이드)."""
         html = self.fetch()
         if html:
             self.results = self.parse(html)
         else:
             logger.error(f"크롤링 실패: {self.url}")
+        self.reset_results()
         return self.results
 
-    def reset_results(self):
+    def reset_results(
+        self,
+    ):
         """결과 초기화."""
         self.results = []
         logger.info(f"{self.__class__.__name__}의 크롤링 결과 초기화 완료")
