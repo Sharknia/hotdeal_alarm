@@ -11,5 +11,3 @@ class KeywordData:
     current_price: Optional[str] = None
     current_meta_data: Optional[str] = None
     wdate: str = datetime.now().isoformat()
-
-    
