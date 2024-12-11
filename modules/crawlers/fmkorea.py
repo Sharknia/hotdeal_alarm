@@ -52,19 +52,27 @@ class FMKoreaCrawler(BaseCrawler):
             )
             price = price_tag.text if price_tag else None
 
-            # Extract delivery
+            # Extract metadata
+            shop_name = shop_info.find("a", class_="strong") if shop_info else None
+            shop = shop_name.text if shop_name else None
+
             delivery_tag = (
                 shop_info.find_all("a", class_="strong")[2] if shop_info else None
             )
             delivery = delivery_tag.text if delivery_tag else None
 
-            # Extract time
             reg_date = li.find("span", class_="regdate")
             time = reg_date.text.strip() if reg_date else None
 
-            # Extract category
             category_tag = li.find("span", class_="category").find("a")
             category = category_tag.text if category_tag else None
+
+            meta_data = {
+                "shop": shop,
+                "delivery": delivery,
+                "time": time,
+                "category": category,
+            }
 
             # Append data
             if post_id and link:
@@ -73,11 +81,8 @@ class FMKoreaCrawler(BaseCrawler):
                         "id": post_id,
                         "title": title,
                         "link": link,
-                        "shop": shop,
                         "price": price,
-                        "delivery": delivery,
-                        "time": time,
-                        "category": category,
+                        "meta_data": str(meta_data),
                     }
                 )
 
