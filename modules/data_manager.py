@@ -111,7 +111,9 @@ class DataManager:
                 current_meta_data=None,
                 wdate=datetime.now().isoformat(),
             )
-            return self.update_keyword_data(keyword=keyword, keyword_data=empty_data)
+            return self.update_keyword_data(
+                keyword=keyword, keyword_data=empty_data, sitename=sitename
+            )
         with open(keyword_data_path, "r") as f:
             data = json.load(f)
             return KeywordData(**data)
