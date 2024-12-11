@@ -71,6 +71,7 @@ class DataManager:
     def update_keyword_data(
         self,
         keyword: str,
+        sitename: str,
         keyword_data: KeywordData = None,
     ) -> KeywordData:
         keyword_data_path = f"data/{keyword}_data.json"
@@ -97,6 +98,7 @@ class DataManager:
     def load_keyword_data(
         self,
         keyword: str,
+        sitename: str,
     ) -> Optional[KeywordData]:
         keyword_data_path = f"data/{keyword}_data.json"
         if not os.path.exists(keyword_data_path):

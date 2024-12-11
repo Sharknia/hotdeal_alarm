@@ -20,7 +20,8 @@ class App:
         # 프록시 초기화
         proxy_manager = ProxyManager()
         proxy_manager.fetch_proxies()
-        # 키워드 갱신
+
+        # 검색할 키워드 갱신
         self.data_manager.data = self.data_manager.file_load()
 
         # 크롤링 작업
@@ -29,25 +30,45 @@ class App:
             logger.warning("키워드가 없습니다.")
             return
         for keyword in keywords:
-            # 알구몬 크롤링
-            algumon_crawler: AlgumonCrawler = AlgumonCrawler(keyword=keyword)
-            algumon_result = algumon_crawler.crawl()
-            print(f"algumon_result: {algumon_result}")
+            algumon_crawler: BaseCrawler = AlgumonCrawler(keyword=keyword)
+            self.excute(
+                crwaler=algumon_crawler,
+                keyword=keyword,
+                sitename="Algumon",
+            )
 
-            # 알구몬 데이터 저장
-            del algumon_crawler
-
-            # FMKorea 크롤링
-            fmkorea_crawler: FMKoreaCrawler = FMKoreaCrawler(keyword=keyword)
-            fmkorea_result = fmkorea_crawler.crawl()
-            print(f"fmkorea_result: {fmkorea_result}")
-
-            # FMKorea 데이터 저장
-            del fmkorea_crawler
+            fmkorea_crawler: BaseCrawler = FMKoreaCrawler(keyword=keyword)
+            self.excute(
+                crwaler=fmkorea_crawler,
+                keyword=keyword,
+                sitename="FMKorea",
+            )
 
         # 마무리 작업
         self.data_manager.data_cleaner(keywords)
         proxy_manager.reset_proxies()
+
+    def excute(
+        self,
+        crwaler: BaseCrawler,
+        keyword: str,
+        sitename: str,
+    ):
+        # 크롤링 실행
+        products: list = crwaler.crawl()
+        print(f"{sitename} 크롤링 결과: {products}")
+
+        # 기존 사이트 - 키워드 데이터 로드
+        keyword_data: KeywordData = self.data_manager.load_keyword_data(
+            keyword=keyword, sitename=sitename
+        )
+
+        # 사이트 데이터 저장
+
+        # 알림 처리
+
+        # 메모리 초기화
+        del crwaler
 
     def execute_crawler(
         self,
