@@ -1,6 +1,6 @@
 import json
 import os
-from dataclasses import asdict, is_dataclass
+from dataclasses import asdict
 from datetime import datetime
 from typing import Dict
 

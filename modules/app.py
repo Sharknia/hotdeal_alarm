@@ -1,10 +1,8 @@
-from datetime import datetime
 from typing import List
 
 from models.keyword_data import KeywordData
 from modules import logger
 from modules.base_crawler import BaseCrawler
-from modules.crawler import Crawler
 from modules.crawlers.algumon import AlgumonCrawler
 from modules.crawlers.fmkorea import FMKoreaCrawler
 from modules.data_manager import DataManager

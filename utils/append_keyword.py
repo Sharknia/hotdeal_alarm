@@ -1,5 +1,4 @@
 import json
-import sys
 
 # JSON 파일 경로
 json_file_path = "/app/data/data.json"
