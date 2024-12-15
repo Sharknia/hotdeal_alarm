@@ -105,25 +105,31 @@ class DataManager:
         sitename: str,
     ) -> KeywordData:
         keyword_data_path = f"data/{keyword}_data.json"
+
         if not os.path.exists(keyword_data_path):
             logger.info(
                 f"[{keyword}] 데이터 파일이 존재하지 않습니다: {keyword_data_path}"
             )
-            # 빈 형태의 데이터 생성
-            empty_data = KeywordData(
-                current_id=None,
-                current_title=None,
-                current_link=None,
-                current_price=None,
-                current_meta_data=None,
-                wdate=datetime.now().isoformat(),
-            )
+            # 빈 데이터 생성
+            empty_data = self._create_empty_keyword_data()
             self.keyword_data_by_site[sitename] = empty_data
             return self.update_keyword_data(
                 keyword=keyword, keyword_data=empty_data, sitename=sitename
             )
+
         with open(keyword_data_path, "r") as f:
             data = json.load(f)
+            # 파일은 있는데 sitename에 해당하는 데이터가 없는 경우
+            if sitename not in data:
+                logger.info(
+                    f"[{keyword}] {sitename} 데이터가 존재하지 않습니다. 새로 생성합니다."
+                )
+                empty_data = self._create_empty_keyword_data()
+                self.keyword_data_by_site[sitename] = empty_data
+                return self.update_keyword_data(
+                    keyword=keyword, keyword_data=empty_data, sitename=sitename
+                )
+
             loaded_data = KeywordData(**data[sitename])
             self.keyword_data_by_site[sitename] = loaded_data
             return loaded_data
@@ -149,3 +155,14 @@ class DataManager:
                 full_path = os.path.join(data_folder, data_file)
                 logger.info(f"[{keyword}] 데이터 파일 삭제: {full_path}")
                 os.remove(full_path)
+
+    def _create_empty_keyword_data(self) -> KeywordData:
+        """빈 KeywordData 객체를 생성합니다."""
+        return KeywordData(
+            current_id=None,
+            current_title=None,
+            current_link=None,
+            current_price=None,
+            current_meta_data=None,
+            wdate=datetime.now().isoformat(),
+        )
