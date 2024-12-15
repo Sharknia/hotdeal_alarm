@@ -88,7 +88,6 @@ class BaseCrawler(ABC):
                     return response.text
             except requests.exceptions.RequestException:
                 # 에러 전체 내용 기록
-                logger.error(f"프록시 {proxy}로 요청 실패: {response.text}")
                 logger.warning(f"프록시 {proxy}로 요청 실패")
         logger.error("모든 프록시를 사용했지만 요청에 실패했습니다.")
         return None
