@@ -112,4 +112,4 @@ class FMKoreaCrawler(BaseCrawler):
 
             # 요청 간 랜덤 대기 시간 설정 (1초에서 3초 사이)
             time.sleep(random.uniform(1, 3))
-            return self.results
+        return self.results
