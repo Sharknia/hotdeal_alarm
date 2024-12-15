@@ -88,7 +88,7 @@ class FMKoreaCrawler(BaseCrawler):
 
         return products
 
-    def crawl(
+    def fetchparse(
         self,
     ):
         # 3페이지까지 크롤링

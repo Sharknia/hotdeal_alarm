@@ -84,7 +84,7 @@ class BaseCrawler(ABC):
         logger.error("모든 프록시를 사용했지만 요청에 실패했습니다.")
         return None
 
-    def crawl(
+    def fetchparse(
         self,
     ) -> list:
         """크롤링 실행 (필요 시 오버라이드)."""
@@ -94,10 +94,3 @@ class BaseCrawler(ABC):
         else:
             logger.error(f"크롤링 실패: {self.url}")
         return self.results
-
-    def reset_results(
-        self,
-    ):
-        """결과 초기화."""
-        self.results = []
-        logger.info(f"{self.__class__.__name__}의 크롤링 결과 초기화 완료")

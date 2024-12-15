@@ -31,11 +31,11 @@ class App:
             return
         for keyword in keywords:
             algumon_crawler: BaseCrawler = AlgumonCrawler(keyword=keyword)
-            self.excute(
-                crwaler=algumon_crawler,
-                keyword=keyword,
-                sitename="Algumon",
-            )
+            # self.excute(
+            #     crwaler=algumon_crawler,
+            #     keyword=keyword,
+            #     sitename="Algumon",
+            # )
 
             fmkorea_crawler: BaseCrawler = FMKoreaCrawler(keyword=keyword)
             self.excute(
@@ -55,7 +55,7 @@ class App:
         sitename: str,
     ):
         # 크롤링 실행
-        products: list = crwaler.crawl()
+        products: list = crwaler.fetchparse()
         print(f"{sitename} 크롤링 결과: {products}")
 
         # 기존 사이트 - 키워드 데이터 로드
