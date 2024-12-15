@@ -12,7 +12,7 @@ class NotificationManager:
 
     def notify(
         self,
-        keyword,
+        keyword: str,
         updates,
         mode="initial",
     ):
@@ -21,7 +21,7 @@ class NotificationManager:
         logger.info(f"알림 모드: {mode}")
         if mode == "initial":
             if updates:
-                text += f"<p><a href='{updates['link']}'>{updates['title']} ({updates['price']})</a></p>"
+                text += f"<p><a href='{updates[0]['link']}'>{updates[0]['title']} ({updates[0]['price']})</a></p>"
             subject = f"[{keyword}] 핫딜 알림 등록 완료"
             self.send_email(subject=subject, body=text, is_html=True)
         elif mode == "updates":
