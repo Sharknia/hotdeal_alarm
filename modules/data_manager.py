@@ -2,7 +2,7 @@ import json
 import os
 from dataclasses import asdict, is_dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Dict
 
 from models.data import DataModel, SmtpSettings
 from models.keyword_data import KeywordData
@@ -22,6 +22,7 @@ class DataManager:
         self,
         file_path="data/data.json",
     ):
+        self.keyword_data_by_site: Dict[str, KeywordData] = {}
         if not hasattr(self, "initialized"):  # 초기화 방지
             self.file_path = file_path
             self.ensure_data_folder()  # 폴더 확인 및 생성
@@ -75,19 +76,22 @@ class DataManager:
         keyword_data: KeywordData = None,
     ) -> KeywordData:
         keyword_data_path = f"data/{keyword}_data.json"
-        data = None
+        data = {}
+
+        # 기존 데이터 로드
         if os.path.exists(keyword_data_path):
             with open(keyword_data_path, "r") as f:
-                existing_data = json.load(f)
+                try:
+                    data = json.load(f)
+                except json.JSONDecodeError:
+                    logger.error(
+                        f"[{keyword}] 데이터 파일이 손상되었습니다. 새로 생성합니다."
+                    )
+                    data = {}
 
-            logger.info(f"[{keyword}] 데이터 업데이트: {asdict(keyword_data)}")
-            existing_data.update(asdict(keyword_data))
-            data = existing_data
-        else:
-            data = asdict(keyword_data)
-            logger.warning(f"[{keyword}] 데이터 파일이 없습니다. 생성합니다. {data}")
-            with open(keyword_data_path, "w") as f:
-                json.dump(data, f, indent=4)
+        # sitename 기반 데이터 업데이트
+        data[sitename] = asdict(keyword_data)
+        logger.info(f"[{keyword}] 데이터 업데이트 - {sitename}: {data[sitename]}")
 
         # JSON 파일 저장
         with open(keyword_data_path, "w") as f:
@@ -99,10 +103,13 @@ class DataManager:
         self,
         keyword: str,
         sitename: str,
-    ) -> Optional[KeywordData]:
+    ) -> KeywordData:
         keyword_data_path = f"data/{keyword}_data.json"
         if not os.path.exists(keyword_data_path):
-            # 빈 형태의 데이터 파일 생성
+            logger.info(
+                f"[{keyword}] 데이터 파일이 존재하지 않습니다: {keyword_data_path}"
+            )
+            # 빈 형태의 데이터 생성
             empty_data = KeywordData(
                 current_id=None,
                 current_title=None,
@@ -111,12 +118,15 @@ class DataManager:
                 current_meta_data=None,
                 wdate=datetime.now().isoformat(),
             )
+            self.keyword_data_by_site[sitename] = empty_data
             return self.update_keyword_data(
                 keyword=keyword, keyword_data=empty_data, sitename=sitename
             )
         with open(keyword_data_path, "r") as f:
             data = json.load(f)
-            return KeywordData(**data)
+            loaded_data = KeywordData(**data[sitename])
+            self.keyword_data_by_site[sitename] = loaded_data
+            return loaded_data
 
     def data_cleaner(self, keywords: list):
         # data 폴더 경로 지정
