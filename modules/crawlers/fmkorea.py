@@ -77,8 +77,12 @@ class FMKoreaCrawler(BaseCrawler):
                 "category": category,
             }
 
-            # Append data as KeywordData
-            if post_id and link:
+            # search_keyword는 self.keyword의 공백을 모두 제거한 것
+            search_keyword = self.keyword.replace(" ", "")
+            # search_title은 title의 공백을 모두 제거한 것
+            search_title = title.replace(" ", "")
+            # title에 search_keyword가 포함되어 있는지 확인
+            if search_keyword in search_title:
                 products.append(
                     KeywordData(
                         current_id=post_id,
