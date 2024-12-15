@@ -57,7 +57,6 @@ class App:
     ):
         # 크롤링 실행
         products: List[KeywordData] = crwaler.fetchparse()
-        print(f"{sitename} 크롤링 결과: {products}")
 
         if not products:
             logger.warning(f"[{keyword}] {sitename} 크롤링 결과가 없습니다.")
@@ -111,84 +110,3 @@ class App:
 
         # 메모리 초기화
         del crwaler
-
-    def execute_crawler(
-        self,
-        keyword: str,
-    ):
-        crawler: Crawler = Crawler(keyword)
-        # 크롤링 수행
-        if not crawler.fetch_html():
-            logger.error(f"[{keyword}] 크롤링 실패")
-            return
-
-        # 알구몬 크롤링 결과 파싱
-        products = crawler.parse_products_algumon()
-
-        # 키워드에 해당하는 json 파일 로드
-        keyword_data: KeywordData = self.data_manager.load_keyword_data(keyword)
-        # 크롤링 결과가 없는 경우
-        if not products:
-            # 최초 알림인 경우
-            if not keyword_data.current_id:
-                logger.info(f"[{keyword}] 최초 실행 알림")
-                self.notification_manager.notify(
-                    updates=None, keyword=keyword, mode="initial"
-                )
-                self.data_manager.update_keyword_data(keyword=keyword)
-                logger.warning(f"[{keyword}] 상품 정보가 없습니다.")
-                return
-
-        # 기존 데이터와 비교
-        current_id = keyword_data.current_id
-        # 첫번째 데이터 내용 저장
-        new_keyword_data: KeywordData = KeywordData(
-            current_id=products[0]["id"],
-            current_title=products[0]["title"],
-            current_link=products[0]["link"],
-            current_price=products[0]["price"],
-            current_meta_data=products[0]["meta_data"],
-            wdate=datetime.now().isoformat(),
-        )
-        # 최초 알림인 경우
-        if not current_id:
-            logger.info(f"[{keyword}] 검색된 상품이 있고, 최초 알림임")
-            # 최초 실행: 첫 번째 상품 저장
-            first_product = products[0]
-            self.data_manager.update_keyword_data(
-                keyword=keyword,
-                keyword_data=new_keyword_data,
-            )
-            self.notification_manager.notify(
-                updates=first_product,
-                keyword=keyword,
-                mode="initial",
-            )
-        # 최초 실행이 아니고 갱신된 내용이 없는 경우
-        elif current_id == products[0]["id"]:
-            logger.info(f"[{keyword}] 갱신된 내용 없음")
-            # 갱신된 내용 없음
-            pass
-        # 최초 실행이 아니고 갱신된 내용이 있는 경우
-        else:
-            logger.info(f"[{keyword}] 갱신된 내용 있음")
-            # 갱신된 내용 처리
-            updates = []
-            for product in products:
-                if product["id"] == current_id:
-                    break
-                logger.info(f"[{keyword}] 새로운 상품: {product['title']}")
-                updates.append(product)
-
-            # 첫 번째 데이터로 JSON 갱신
-            self.data_manager.update_keyword_data(
-                keyword=keyword,
-                keyword_data=new_keyword_data,
-            )
-
-            # 알림 출력
-            self.notification_manager.notify(
-                updates=updates,
-                keyword=keyword,
-                mode="updates",
-            )
