@@ -36,12 +36,12 @@ class App:
                 sitename="Algumon",
             )
 
-            fmkorea_crawler: BaseCrawler = FMKoreaCrawler(keyword=keyword)
-            self.excute(
-                crwaler=fmkorea_crawler,
-                keyword=keyword,
-                sitename="FMKorea",
-            )
+            # fmkorea_crawler: BaseCrawler = FMKoreaCrawler(keyword=keyword)
+            # self.excute(
+            #     crwaler=fmkorea_crawler,
+            #     keyword=keyword,
+            #     sitename="FMKorea",
+            # )
 
         # 마무리 작업
         self.data_manager.data_cleaner(keywords)
