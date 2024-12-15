@@ -38,7 +38,7 @@ class BaseCrawler(ABC):
     def fetch(
         self,
         url: str = None,
-        timeout: int = 100,
+        timeout: int = 10,
     ) -> str:
         """HTML 가져오기 (프록시 포함)."""
         target_url = url or self.url  # url이 명시되지 않으면 기본적으로 self.url 사용
@@ -50,7 +50,7 @@ class BaseCrawler(ABC):
             # 알구몬의 경우 오라클 클라우드 ip에 대해 403이 뜨고, FMKorea의 경우 잦은 요청에 대해 430이 발생하는 경우가 있어 예외처리
             if response.status_code == 403 or response.status_code == 430:
                 logger.warning(
-                    f"403 Forbidden: 접근이 차단되었습니다. 프록시로 재시도합니다."
+                    f"{response.status_code}: 접근이 차단되었습니다. 프록시로 재시도합니다."
                 )
                 # 403이 발생하면 프록시를 사용하여 재시도
                 return self._fetch_with_proxy(target_url, timeout)
