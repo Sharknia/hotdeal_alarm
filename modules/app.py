@@ -58,15 +58,21 @@ class App:
         # 크롤링 실행
         products: List[KeywordData] = crwaler.fetchparse()
 
-        if not products:
-            logger.warning(f"[{keyword}] {sitename} 크롤링 결과가 없습니다.")
-            del crwaler
-            return
-
         # 기존 사이트 - 키워드 데이터 로드
         keyword_data: KeywordData = self.data_manager.load_keyword_data(
             keyword=keyword, sitename=sitename
         )
+
+        if not products:
+            logger.warning(f"[{keyword}] {sitename} 크롤링 결과가 없습니다.")
+            # 이미 검색을 했었다는 사실을 currnent_id의 None 여부로 판단하기 때문에 current_id를 1로 업데이트
+            self.data_manager.update_keyword_data(
+                keyword=keyword,
+                keyword_data=KeywordData(current_id="1"),
+                sitename=sitename,
+            )
+            del crwaler
+            return
 
         new_keyword_data: KeywordData = products[0]
 
