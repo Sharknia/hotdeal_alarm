@@ -1,6 +1,8 @@
 import smtplib
 from email.mime.text import MIMEText
+from typing import List
 
+from models.keyword_data import KeywordData
 from modules import logger
 from modules.data_manager import DataManager
 
@@ -12,8 +14,8 @@ class NotificationManager:
 
     def notify(
         self,
-        keyword,
-        updates,
+        keyword: str,
+        updates: List[KeywordData],
         mode="initial",
     ):
         subject = None
@@ -21,14 +23,14 @@ class NotificationManager:
         logger.info(f"알림 모드: {mode}")
         if mode == "initial":
             if updates:
-                text += f"<p><a href='{updates['link']}'>{updates['title']} ({updates['price']})</a></p>"
+                text += f"<p><a href='{updates[0].current_link}'>{updates[0].current_title} ({updates[0].current_price})</a></p>"
             subject = f"[{keyword}] 핫딜 알림 등록 완료"
             self.send_email(subject=subject, body=text, is_html=True)
         elif mode == "updates":
             # 업데이트 모드에서 HTML 리스트 생성
             product_list_html = "".join(
                 [
-                    f"<p><a href='{product['link']}'>{product['title']}</a> - {product['price']}</p>"
+                    f"<p><a href='{product.current_link}'>{product.current_title}</a> - {product.current_price}</p>"
                     for product in updates
                 ]
             )

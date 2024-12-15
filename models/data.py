@@ -1,7 +1,5 @@
-import json
-import os
 from dataclasses import asdict, dataclass, field
-from typing import Dict, Optional
+from typing import Dict
 
 from models import logger
 
