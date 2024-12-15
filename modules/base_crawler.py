@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import List
 
 import requests
 
+from models.keyword_data import KeywordData
 from modules import logger
 from modules.proxy_manager import ProxyManager
 
@@ -29,7 +31,7 @@ class BaseCrawler(ABC):
     def parse(
         self,
         html: str,
-    ) -> list:
+    ) -> List[KeywordData]:
         """파싱 로직 (사이트별 구현 필요)."""
         pass
 
@@ -86,7 +88,7 @@ class BaseCrawler(ABC):
 
     def fetchparse(
         self,
-    ) -> list:
+    ) -> List[KeywordData]:
         """크롤링 실행 (필요 시 오버라이드)."""
         html = self.fetch()
         if html:

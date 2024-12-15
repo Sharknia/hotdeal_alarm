@@ -1,9 +1,12 @@
 import random
 import re
 import time
+from datetime import datetime
+from typing import List
 
 from bs4 import BeautifulSoup
 
+from models.keyword_data import KeywordData
 from modules import logger
 from modules.base_crawler import BaseCrawler
 
@@ -15,7 +18,10 @@ class FMKoreaCrawler(BaseCrawler):
     ) -> str:
         return f"https://www.fmkorea.com/index.php?mid=hotdeal&page="
 
-    def parse(self, html: str) -> list:
+    def parse(
+        self,
+        html: str,
+    ) -> List[KeywordData]:
         soup = BeautifulSoup(html, "html.parser")
         product_list = soup.find_all("li", class_="li")
 
@@ -53,9 +59,6 @@ class FMKoreaCrawler(BaseCrawler):
             price = price_tag.text if price_tag else None
 
             # Extract metadata
-            shop_name = shop_info.find("a", class_="strong") if shop_info else None
-            shop = shop_name.text if shop_name else None
-
             delivery_tag = (
                 shop_info.find_all("a", class_="strong")[2] if shop_info else None
             )
@@ -74,16 +77,17 @@ class FMKoreaCrawler(BaseCrawler):
                 "category": category,
             }
 
-            # Append data
+            # Append data as KeywordData
             if post_id and link:
                 products.append(
-                    {
-                        "id": post_id,
-                        "title": title,
-                        "link": link,
-                        "price": price,
-                        "meta_data": str(meta_data),
-                    }
+                    KeywordData(
+                        current_id=post_id,
+                        current_title=title,
+                        current_link=link,
+                        current_price=price,
+                        current_meta_data=str(meta_data),
+                        wdate=datetime.now().isoformat(),
+                    )
                 )
 
         return products

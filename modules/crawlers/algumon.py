@@ -1,5 +1,9 @@
+from datetime import datetime
+from typing import List
+
 from bs4 import BeautifulSoup
 
+from models.keyword_data import KeywordData
 from modules import logger
 from modules.base_crawler import BaseCrawler
 
@@ -14,7 +18,7 @@ class AlgumonCrawler(BaseCrawler):
     def parse(
         self,
         html: str,
-    ) -> list:
+    ) -> List[KeywordData]:
         soup = BeautifulSoup(html, "html.parser")
         product_list = soup.find("ul", class_="product post-list")
         if not product_list:
@@ -31,15 +35,18 @@ class AlgumonCrawler(BaseCrawler):
 
             if post_id and action_uri and product_link:
                 products.append(
-                    {
-                        "id": post_id,
-                        "title": product_link.text.strip(),
-                        "link": f"https://www.algumon.com{action_uri.strip()}",
-                        "price": product_price.text.strip() if product_price else "",
-                        "meta_data": (meta_info.text.strip() if meta_info else "")
+                    KeywordData(
+                        current_id=post_id,
+                        current_title=product_link.text.strip(),
+                        current_link=f"https://www.algumon.com{action_uri.strip()}",
+                        current_price=(
+                            product_price.text.strip() if product_price else None
+                        ),
+                        current_meta_data=(meta_info.text.strip() if meta_info else "")
                         .replace("\n", "")
                         .replace("\r", "")
                         .replace(" ", ""),
-                    }
+                        wdate=datetime.now().isoformat(),
+                    )
                 )
         return products

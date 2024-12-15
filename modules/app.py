@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 from models.keyword_data import KeywordData
 from modules import logger
@@ -31,11 +32,11 @@ class App:
             return
         for keyword in keywords:
             algumon_crawler: BaseCrawler = AlgumonCrawler(keyword=keyword)
-            # self.excute(
-            #     crwaler=algumon_crawler,
-            #     keyword=keyword,
-            #     sitename="Algumon",
-            # )
+            self.excute(
+                crwaler=algumon_crawler,
+                keyword=keyword,
+                sitename="Algumon",
+            )
 
             fmkorea_crawler: BaseCrawler = FMKoreaCrawler(keyword=keyword)
             self.excute(
@@ -55,17 +56,58 @@ class App:
         sitename: str,
     ):
         # 크롤링 실행
-        products: list = crwaler.fetchparse()
+        products: List[KeywordData] = crwaler.fetchparse()
         print(f"{sitename} 크롤링 결과: {products}")
+
+        if not products:
+            logger.warning(f"[{keyword}] {sitename} 크롤링 결과가 없습니다.")
+            del crwaler
+            return
 
         # 기존 사이트 - 키워드 데이터 로드
         keyword_data: KeywordData = self.data_manager.load_keyword_data(
             keyword=keyword, sitename=sitename
         )
 
-        # 사이트 데이터 저장
+        new_keyword_data: KeywordData = products[0]
 
-        # 알림 처리
+        # 사이트 데이터 저장
+        mode = "initial"
+        updates = []
+        # 최초 실행인 경우
+        if not keyword_data.current_id:
+            logger.info(f"[{keyword}] 검색된 상품이 있고, 최초 알림임")
+            mode = "initial"
+            updates = products
+        # 최초 실행이 아니고 갱신된 내용이 없는 경우
+        elif keyword_data.current_id == new_keyword_data.current_id:
+            logger.info(f"[{keyword}] 갱신된 내용 없음")
+            # 갱신된 내용 없음
+            return
+        # 최초 실행이 아니고 갱신된 내용이 있는 경우
+        else:
+            mode = "updates"
+            logger.info(f"[{keyword}] 갱신된 내용 있음")
+            # 갱신된 내용 처리
+            for product in products:
+                if product["id"] == keyword_data.current_id:
+                    break
+                logger.info(f"[{keyword}] 새로운 상품: {product['title']}")
+                updates.append(product)
+
+        # 첫 번째 데이터로 JSON 갱신
+        self.data_manager.update_keyword_data(
+            keyword=keyword,
+            keyword_data=new_keyword_data,
+            sitename=sitename,
+        )
+
+        # 알림 출력
+        self.notification_manager.notify(
+            updates=updates,
+            keyword=keyword,
+            mode=mode,
+        )
 
         # 메모리 초기화
         del crwaler
