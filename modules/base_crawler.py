@@ -50,6 +50,9 @@ class BaseCrawler(ABC):
             )
             # 알구몬의 경우 오라클 클라우드 ip에 대해 403이 뜨고, FMKorea의 경우 잦은 요청에 대해 430이 발생하는 경우가 있어 예외처리
             if response.status_code == 403 or response.status_code == 430:
+                # 430인 경우 에러 전체 내용을 출력한다.
+                if response.status_code == 430:
+                    logger.error(f"{response.status_code}: {response.text}")
                 logger.warning(
                     f"{response.status_code}: 접근이 차단되었습니다. 프록시로 재시도합니다."
                 )
