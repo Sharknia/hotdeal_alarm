@@ -42,6 +42,7 @@ class BaseCrawler(ABC):
     ) -> str:
         """HTML 가져오기 (프록시 포함)."""
         target_url = url or self.url  # url이 명시되지 않으면 기본적으로 self.url 사용
+        logger.info(f"요청: {target_url}")
         try:
             response = requests.get(
                 target_url,
@@ -76,8 +77,8 @@ class BaseCrawler(ABC):
                     proxies={"http": proxy, "https": proxy},
                     timeout=timeout,
                 )
-                if response.status_code == 403:
-                    logger.warning(f"프록시 {proxy}에서 403 Forbidden 발생")
+                if response.status_code == 403 or response.status_code == 430:
+                    logger.warning(f"프록시 {proxy}에서 {response.status_code} 발생")
                     continue  # 다음 프록시로 재시도
                 elif response.status_code == 200:
                     logger.info(f"프록시 {proxy}로 요청 성공")
