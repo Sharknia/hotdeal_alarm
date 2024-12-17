@@ -93,9 +93,9 @@ class App:
             logger.info(f"[{keyword}] 갱신된 내용 있음")
             # 갱신된 내용 처리
             for product in products:
-                if product["id"] == keyword_data.current_id:
+                if product.current_id == keyword_data.current_id:
                     break
-                logger.info(f"[{keyword}] 새로운 상품: {product['title']}")
+                logger.info(f"[{keyword}] 새로운 상품: {product.current_title}")
                 updates.append(product)
 
         # 첫 번째 데이터로 JSON 갱신
