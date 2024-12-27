@@ -20,7 +20,7 @@ class DataManager:
 
     def __init__(
         self,
-        file_path="data/data.json",
+        file_path=os.path.join(os.getcwd(), "data/data.json"),
     ):
         self.keyword_data_by_site: Dict[str, KeywordData] = {}
         if not hasattr(self, "initialized"):  # 초기화 방지
@@ -31,10 +31,10 @@ class DataManager:
 
     # data.json 파일 저장 경로의 폴더가 없으면 생성
     def ensure_data_folder(self):
-        folder = os.path.dirname(self.file_path)  # 파일 경로에서 폴더 추출
+        folder = os.path.abspath(os.path.dirname(self.file_path))  # 절대 경로로 변환
         if not os.path.exists(folder):
             logger.info(f"데이터 폴더가 존재하지 않아 생성: {folder}")
-            os.makedirs(folder)
+            os.makedirs(folder, exist_ok=True)
 
     # data.json을 다시 읽어서 keyword 데이터를 업데이트합니다.
     def file_load(self):
