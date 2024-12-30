@@ -49,3 +49,6 @@ patch:
 	@docker cp ./data $(CONTAINER_NAME):/app/data
 	@echo "Data restore completed."
 	@rm -rf data
+
+bash:
+	docker exec -it $(CONTAINER_NAME) /bin/bash
