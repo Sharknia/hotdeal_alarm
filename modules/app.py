@@ -63,13 +63,14 @@ class App:
 
         if not products:
             logger.warning(f"[{keyword}] {sitename} 크롤링 결과가 없습니다.")
-            # 이미 검색을 했었다는 사실을 currnent_id의 None 여부로 판단하기 때문에 current_id를 1로 업데이트
-            self.data_manager.update_keyword_data(
-                keyword=keyword,
-                keyword_data=KeywordData(current_id="1"),
-                sitename=sitename,
-            )
-            del crwaler
+            # 기존 데이터가 없는 경우에는 이미 검색을 했었다는 사실을 currnent_id의 None 여부로 판단하기 때문에 current_id를 1로 업데이트
+            if not keyword_data.current_id:
+                self.data_manager.update_keyword_data(
+                    keyword=keyword,
+                    keyword_data=KeywordData(current_id="1"),
+                    sitename=sitename,
+                )
+                del crwaler
             return
 
         new_keyword_data: KeywordData = products[0]
