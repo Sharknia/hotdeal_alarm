@@ -64,6 +64,8 @@ class App:
         if not products:
             logger.warning(f"[{keyword}] {sitename} 크롤링 결과가 없습니다.")
             # 기존 데이터가 없는 경우에는 이미 검색을 했었다는 사실을 currnent_id의 None 여부로 판단하기 때문에 current_id를 1로 업데이트
+            # 기존의 keyword data를 확인하기 위해 로그를 남긴다.
+            logger.info(f"[{keyword}] 기존 데이터: {keyword_data}")
             if not keyword_data.current_id:
                 self.data_manager.update_keyword_data(
                     keyword=keyword,
